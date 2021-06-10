@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30225.117
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeneratorForm", "PlanetGenerator\GeneratorForm.csproj", "{B1FCDFC6-5558-4FCC-BC31-A61ECB20D5AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Noise", "Noise\Noise.csproj", "{70B51A7F-CB28-40B8-98BD-EFF93ABC90DC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PerfomanceTest", "PerfomanceTest\PerfomanceTest.csproj", "{8F496818-24E6-4CC1-A705-331D0DE4A123}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,20 +19,19 @@ Global
 		{B1FCDFC6-5558-4FCC-BC31-A61ECB20D5AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B1FCDFC6-5558-4FCC-BC31-A61ECB20D5AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B1FCDFC6-5558-4FCC-BC31-A61ECB20D5AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{70B51A7F-CB28-40B8-98BD-EFF93ABC90DC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{70B51A7F-CB28-40B8-98BD-EFF93ABC90DC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{70B51A7F-CB28-40B8-98BD-EFF93ABC90DC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{70B51A7F-CB28-40B8-98BD-EFF93ABC90DC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8F496818-24E6-4CC1-A705-331D0DE4A123}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8F496818-24E6-4CC1-A705-331D0DE4A123}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8F496818-24E6-4CC1-A705-331D0DE4A123}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8F496818-24E6-4CC1-A705-331D0DE4A123}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {94233ADC-428D-4D1C-BFC8-C8614071BE59}
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 2
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://dev.azure.com/moldawanausmoglaschum
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = PlanetGenerator\\GeneratorForm.csproj
-		SccProjectName1 = PlanetGenerator
-		SccLocalPath1 = PlanetGenerator
 	EndGlobalSection
 EndGlobal

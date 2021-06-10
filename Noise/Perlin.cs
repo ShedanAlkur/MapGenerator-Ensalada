@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MapGenerator
+namespace Noise.Perlin
 {
     /// <summary>
     ///     Класс для генерации шума Перлина в 2D,3D пространстве.
@@ -80,6 +80,7 @@ namespace MapGenerator
             // Координаты левой верхней вершины квадрата точки.
             var left = (int) Math.Floor(fx);
             var top = (int) Math.Floor(fy);
+            Console.WriteLine(fx);
 
             // Локальные координаты точки внутри квадрата.
             var pointInQuadX = fx - left;

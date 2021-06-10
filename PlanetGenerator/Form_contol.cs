@@ -8,355 +8,308 @@ namespace MapGenerator
 {
     public partial class Form_contol : Form
     {
-        public int[] BaseTemperatureMap;
-        public bool BaseTemperatureMapIsReady; // Готовность карты начальных температур к отображению.
-        private decimal dist; // Сохраненное расстояние до звезды.
         private Form_grid form_grid; // Окно для визуализации всех клеток карты.
-        public Form_info form_info; // Окно для вывода подробной информации о клетке.
-        public int[] HeightMap;
-        public bool HeightMapIsReady; // Готовность карты высот к отображению.
+
         private int index;
+        private int seed; // Сохраненное семя генерации.
         private int mapSize; // Сохраненный размер (ширина) карты
 
         public double[] NoiseMap;
-
         public bool NoiseMapIsReady; // Готовность карты шумов.
-        public int[] RainFallMap;
-        public bool RainFallMapIsReady; // Готовность карты осадков к отображению.
-        public bool RainNoiseMapIsReady; // Готовность карты шумов.
-        private int seed; // Сохраненное семя генерации.
-        private int starType; // Сохраненный тип звезды.
-        public int[] TemperatureMap;
-        public bool TemperatureMapIsReady; // Готовность карты итоговых температур к отображению.
+
+        public int[] HeightMap;
+        public bool HeightMapIsReady; // Готовность карты высот к отображению.
+
+        public int[] BaseTemperatureMap;
+        public bool BaseTemperatureMapIsReady; // Готовность карты начальных температур к отображению.
+
+        public int[] ModeTemperatureMap;
+        public bool ModeTemperatureMapIsReady; // Готовность карты итоговых температур к отображению.
 
         public Form_contol()
         {
             InitializeComponent();
         }
 
-        private void Form_contol_Load(object sender, EventArgs e)
+        readonly Dictionary<string, NoiseMapType> DictNoiseMapType = new Dictionary<string, NoiseMapType>()
+        {
+            ["2D шум"] = NoiseMapType.simple2d,
+            ["3D шум с Z смещением"] = NoiseMapType.simple3d,
+            ["3D шум, замкнутый по X"] = NoiseMapType.looped3d,
+            ["4D шум, замкнутый по X и Y"] = NoiseMapType.looped4d,
+        };
+
+        readonly Dictionary<string, ShowedMapType> DictShowedMapType = new Dictionary<string, ShowedMapType>()
+        {
+            ["Карта шумов"] = ShowedMapType.Noise,
+            ["Карта высот"] = ShowedMapType.Landscape,
+            ["Карта базовых температур"] = ShowedMapType.BaseTemperature,
+            ["Карта модифицированных температур"] = ShowedMapType.ModeTemperature,
+        };
+
+        void Form_contol_Load(object sender, EventArgs e)
         {
             form_grid = new Form_grid();
             form_grid.Show(this);
-            form_info = new Form_info();
-            form_info.Show(this);
-            form_info.Hide();
 
+            //mapSize = 300;
+            //num_mapSize.Value = mapSize; // Размер карты
+            mapSize = (int)num_mapSize.Value;
+            num_temp.Value = 26; // Температура на экваторе
+
+            ResetMapFlags();
+
+            NoiseMap = new double[mapSize * mapSize];
+            HeightMap = new int[mapSize * mapSize];
+            BaseTemperatureMap = new int[mapSize * mapSize];
+            ModeTemperatureMap = new int[mapSize * mapSize];
+
+            foreach (string key in DictNoiseMapType.Keys) cb_noise.Items.Add(key);
+            cb_noise.SelectedIndex = 0;
+            foreach (string key in DictShowedMapType.Keys) cb_map.Items.Add(key);
+            cb_map.SelectedIndex = 0;
+
+            form_grid.SetCanvasSize((int)num_size.Value, (int)num_mapSize.Value);
+            PrepareToVisualization();
+            Visualize();
+        }
+
+        void ResetMapFlags()
+        {
             NoiseMapIsReady = false;
             HeightMapIsReady = false;
             BaseTemperatureMapIsReady = false;
-            TemperatureMapIsReady = false;
-            RainFallMapIsReady = false;
-
-            NoiseMap = new double[(int) num_mapSize.Value * (int) num_mapSize.Value];
-            HeightMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-            BaseTemperatureMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-            TemperatureMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-            RainFallMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-
-            comboBox_map.SelectedIndex = 0;
-            comboBox_starType.SelectedIndex = 4;
-            comboBox_planetType.SelectedIndex = 0;
-            num_temp.Value = 26;
-
-            starType = comboBox_starType.SelectedIndex;
-            dist = num_dist.Value;
-            mapSize = (int) num_mapSize.Value;
-
-            form_grid.SetCanvasSize((int) num_size.Value, (int) num_mapSize.Value);
-            PrepareToVisualization(comboBox_map.SelectedIndex);
-            Visualize(comboBox_map.SelectedIndex);
+            ModeTemperatureMapIsReady = false;
         }
 
-        public void Visualize(int mapIndex)
+        void Visualize()
         {
-            switch (mapIndex)
+            try
             {
-                case 0: // Карта шума Перлина
-                {
-                    for (var x = 0; x < mapSize; x++)
-                    for (var y = 0; y < mapSize; y++)
-                    {
-                        index = x + y * mapSize;
-                        if (double.IsNaN(NoiseMap[index]))
-                            return;
-                        form_grid.DrawCell(x, y,
-                            Color.FromArgb((int) (NoiseMap[index] * 255), (int) (NoiseMap[index] * 255),
-                                (int) (NoiseMap[index] * 255)));
-                    }
-
-                    break;
-                }
-                case 1: // Карта высот
-                {
-                    for (var x = 0; x < mapSize; x++)
-                    for (var y = 0; y < mapSize; y++)
-                    {
-                        index = x + y * mapSize;
-                        form_grid.DrawCell(x, y, GetHeightColor(HeightMap[index]));
-                    }
-
-                    break;
-                }
-                case 2: // Карта температур по умолчанию
-                {
-                    for (var x = 0; x < mapSize; x++)
-                    for (var y = 0; y < mapSize; y++)
-                    {
-                        index = x + y * mapSize;
-                        form_grid.DrawCell(x, y, GetTemperatureColor(BaseTemperatureMap[index]));
-                    }
-
-                    break;
-                }
-                case 3: // Карта температур
-                {
-                    for (var x = 0; x < mapSize; x++)
-                    for (var y = 0; y < mapSize; y++)
-                    {
-                        index = x + y * mapSize;
-                        form_grid.DrawCell(x, y, GetTemperatureColor(TemperatureMap[index]));
-                    }
-
-                    break;
-                }
-                case 4: // Карта осадков
-                {
-                    for (var x = 0; x < mapSize; x++)
-                    for (var y = 0; y < mapSize; y++)
-                    {
-                        index = x + y * mapSize;
-                        form_grid.DrawCell(x, y, GetRainfallColor(RainFallMap[index]));
-                    }
-
-                    break;
-                }
+                Visualize(DictShowedMapType[cb_map.Text]);
             }
+            catch (Exception _){ }
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="showedMapType"></param>
+        void Visualize(ShowedMapType showedMapType)
+        {
+            switch (showedMapType)
+            {
+                case ShowedMapType.Noise: // Карта шума Перлина
+                    {
+                        int color;
+                        for (var x = 0; x < mapSize; x++)
+                            for (var y = 0; y < mapSize; y++)
+                            {
+                                index = x + y * mapSize;
+                                if (double.IsNaN(NoiseMap[index])) return;
+                                color = (byte)(NoiseMap[index] * 255);
+                                form_grid.DrawCell(x, y, Color.FromArgb(color, color, color));
+
+                            }
+                        break;
+                    }
+                case ShowedMapType.Landscape: // Карта высот
+                    {
+                        for (var x = 0; x < mapSize; x++)
+                            for (var y = 0; y < mapSize; y++)
+                            {
+                                index = x + y * mapSize;
+                                form_grid.DrawCell(x, y, GetHeightColor(HeightMap[index]));
+                            }
+
+                        break;
+                    }
+                case ShowedMapType.BaseTemperature: // Карта температур по умолчанию
+                    {
+                        for (var x = 0; x < mapSize; x++)
+                            for (var y = 0; y < mapSize; y++)
+                            {
+                                index = x + y * mapSize;
+                                form_grid.DrawCell(x, y, GetTemperatureColor(BaseTemperatureMap[index]));
+                            }
+
+                        break;
+                    }
+                case ShowedMapType.ModeTemperature: // Карта температур
+                    {
+                        for (var x = 0; x < mapSize; x++)
+                            for (var y = 0; y < mapSize; y++)
+                            {
+                                index = x + y * mapSize;
+                                form_grid.DrawCell(x, y, GetTemperatureColor(ModeTemperatureMap[index]));
+                            }
+
+                        break;
+                    }
+            }
+            //form_grid.DrawGrid();
             form_grid.Redraw();
         }
 
-        private void comboBox_map_SelectedIndexChanged(object sender, EventArgs e) // Изменение типа отображаемой карты.
+        void PrepareNoiseMap(NoiseMapType noiseMapType)
         {
-            PrepareToVisualization(comboBox_map.SelectedIndex);
-            Visualize(comboBox_map.SelectedIndex);
-        }
-
-        public void PrepareToVisualization(int mapType) // Генерируем запрашиваемую карту при её отсутствии
-        {
-            switch (mapType)
+            if (!NoiseMapIsReady)
             {
-                case 0: // Если выбрана карта шумов.
-                {
-                    if (!NoiseMapIsReady)
-                    {
-                        NoiseMap = new double[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        NoiseMap = MapGenerator.GenerateNoiseMap((int) num_seed.Value, (int) num_mapSize.Value,
-                            (float) num_scale.Value, (int) num_xd.Value, (int) num_yd.Value, (int) num_octaves.Value,
-                            (float) num_persistance.Value);
-                        NoiseMapIsReady = true;
-                    }
-
-                    break;
-                }
-                case 1: // Если выбрана карта высот.
-                {
-                    if (!NoiseMapIsReady)
-                    {
-                        NoiseMap = new double[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        NoiseMap = MapGenerator.GenerateNoiseMap((int) num_seed.Value, (int) num_mapSize.Value,
-                            (float) num_scale.Value, (int) num_xd.Value, (int) num_yd.Value, (int) num_octaves.Value,
-                            (float) num_persistance.Value);
-                        NoiseMapIsReady = true;
-                    }
-
-                    if (!HeightMapIsReady)
-                    {
-                        HeightMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        HeightMap = MapGenerator.GenerateHeightMap(NoiseMap, (int) num_multiplier.Value,
-                            (int) num_oceanLevel.Value,
-                            (int) num_extraBorder.Value, (double) num_extraParam.Value);
-                        HeightMapIsReady = true;
-                    }
-
-                    break;
-                }
-
-                case 2: // Если выбрана карта базовой температуры.
-                {
-                    if (!BaseTemperatureMapIsReady)
-                    {
-                        BaseTemperatureMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        BaseTemperatureMap = MapGenerator.GenerateBaseTemperatureMap((int) num_mapSize.Value,
-                            (int) num_temp.Value + 273,
-                            (double) num_divisor.Value, (double) num_tempExp.Value, (double) num_equator.Value);
-                        BaseTemperatureMapIsReady = true;
-                    }
-
-                    break;
-                }
-                case 3: // Если выбрана карта итоговой температуры.
-                {
-                    if (!NoiseMapIsReady)
-                    {
-                        NoiseMap = new double[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        NoiseMap = MapGenerator.GenerateNoiseMap((int) num_seed.Value, (int) num_mapSize.Value,
-                            (float) num_scale.Value, (int) num_xd.Value, (int) num_yd.Value, (int) num_octaves.Value,
-                            (float) num_persistance.Value);
-                        NoiseMapIsReady = true;
-                    }
-
-                    if (!HeightMapIsReady)
-                    {
-                        HeightMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        HeightMap = MapGenerator.GenerateHeightMap(NoiseMap, (int) num_multiplier.Value,
-                            (int) num_oceanLevel.Value,
-                            (int) num_extraBorder.Value, (double) num_extraParam.Value);
-                        HeightMapIsReady = true;
-                    }
-
-                    if (!BaseTemperatureMapIsReady)
-                    {
-                        BaseTemperatureMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        BaseTemperatureMap = MapGenerator.GenerateBaseTemperatureMap((int) num_mapSize.Value,
-                            (int) num_temp.Value + 273,
-                            (double) num_divisor.Value, (double) num_tempExp.Value, (double) num_equator.Value);
-                        BaseTemperatureMapIsReady = true;
-                    }
-
-                    if (!TemperatureMapIsReady)
-                    {
-                        TemperatureMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        TemperatureMap = MapGenerator.GenerateTemperatureMap(BaseTemperatureMap, HeightMap,
-                            (double) num_reduction.Value);
-                        TemperatureMapIsReady = true;
-                    }
-
-                    break;
-                }
-                case 4: // Если выбрана карта осадков.
-                {
-                    if (!RainNoiseMapIsReady)
-                    {
-                        RainFallMap = new int[(int) num_mapSize.Value * (int) num_mapSize.Value];
-                        RainFallMap = MapGenerator.GenerateMap((int) num_rainSeed.Value, (int) num_mapSize.Value,
-                            (float) num_rainScale.Value, (int) num_rainMultiplier.Value);
-                        RainFallMapIsReady = true;
-                    }
-
-                    break;
-                }
+                //NoiseMap = new double[(int)num_mapSize.Value * (int)num_mapSize.Value];
+                NoiseMap = MapGenerator.NoiseMap(seed, mapSize,
+                    (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                    (float)num_persistance.Value);
+                NoiseMapIsReady = true;
+            }
+        }
+        void PrepareHeightMap()
+        {
+            if (!HeightMapIsReady)
+            {
+                //HeightMap = new int[(int)num_mapSize.Value * (int)num_mapSize.Value];
+                HeightMap = MapGenerator.HeightMap(NoiseMap, (int)num_multiplier.Value,
+                    (int)num_oceanLevel.Value,
+                    (int)num_extraBorder.Value, (double)num_extraParam.Value);
+                HeightMapIsReady = true;
+            }
+        }
+        void PrepareBaseTemperatureMap()
+        {
+            if (!BaseTemperatureMapIsReady)
+            {
+                //BaseTemperatureMap = new int[(int)num_mapSize.Value * (int)num_mapSize.Value];
+                BaseTemperatureMap = MapGenerator.BaseTemperatureMap(mapSize,
+                    (int)num_temp.Value + 273,
+                    (double)num_divisor.Value, (double)num_tempExp.Value, (double)num_equator.Value);
+                BaseTemperatureMapIsReady = true;
+            }
+        }
+        void PrepareModeTemperatureMap()
+        {
+            if (!ModeTemperatureMapIsReady)
+            {
+                //ModeTemperatureMap = new int[(int)num_mapSize.Value * (int)num_mapSize.Value];
+                ModeTemperatureMap = MapGenerator.ModeTemperatureMap(BaseTemperatureMap, HeightMap,
+                    (double)num_reduction.Value);
+                ModeTemperatureMapIsReady = true;
             }
         }
 
-        private void btn_sizeChange_Click(object sender, EventArgs e) // Изменение размера карты
+        /// <summary>
+        /// Генерирует запрашиваемую карту при её отсутствии.
+        /// </summary>
+        void PrepareToVisualization()
+        {
+            try
+            {
+                PrepareToVisualization(DictNoiseMapType[cb_noise.Text], DictShowedMapType[cb_map.Text]);
+            }
+            catch (Exception _) { }
+        }
+
+        /// <summary>
+        /// Генерирует запрашиваемую карту при её отсутствии.
+        /// </summary>
+        /// <param name="noiseMapType">Тип карты шумов.</param>
+        /// <param name="showedMapType">Тип отображаемой карты.</param>
+        void PrepareToVisualization(NoiseMapType noiseMapType, ShowedMapType showedMapType)
+        {
+            switch (showedMapType)
+            {
+                case ShowedMapType.Noise: // Если выбрана карта шумов.
+                    {
+                        PrepareNoiseMap(noiseMapType);
+                        break;
+                    }
+                case ShowedMapType.Landscape: // Если выбрана карта высот.
+                    {
+                        PrepareNoiseMap(noiseMapType);
+                        PrepareHeightMap();
+                        break;
+                    }
+
+                case ShowedMapType.BaseTemperature: // Если выбрана карта базовой температуры.
+                    {
+                        PrepareBaseTemperatureMap();
+                        break;
+                    }
+                case ShowedMapType.ModeTemperature: // Если выбрана карта итоговой температуры.
+                    {
+                        PrepareNoiseMap(noiseMapType);
+                        PrepareHeightMap();
+                        PrepareBaseTemperatureMap();
+                        PrepareModeTemperatureMap();
+                        break;
+                    }
+            }
+        }
+
+        private void btn_sizeChange_Click(object sender, EventArgs e) // Установка новых размеров карты.
         {
             if (mapSize != num_mapSize.Value)
             {
-                NoiseMapIsReady = false;
-                HeightMapIsReady = false;
-                BaseTemperatureMapIsReady = false;
-                TemperatureMapIsReady = false;
-                RainFallMapIsReady = false;
-
-                mapSize = (int) num_mapSize.Value;
+                ResetMapFlags();
+                mapSize = (int)num_mapSize.Value;
             }
-
-            form_grid.SetCanvasSize((int) num_size.Value, (int) num_mapSize.Value);
-            PrepareToVisualization(comboBox_map.SelectedIndex);
-            Visualize(comboBox_map.SelectedIndex);
+            form_grid.SetCanvasSize((int)num_size.Value, (int)num_mapSize.Value);
+            if (cb_sync.Checked)
+            {
+                PrepareToVisualization();
+                Visualize();
+            }
         }
 
-        private void btn_generateMaps_Click(object sender, EventArgs e)
+        private void btn_generateMaps_Click(object sender, EventArgs e) // Генерация и визуализация карты.
         {
-            NoiseMapIsReady = false;
-            HeightMapIsReady = false;
-            BaseTemperatureMapIsReady = false;
-            TemperatureMapIsReady = false;
-            RainFallMapIsReady = false;
-            PrepareToVisualization(comboBox_map.SelectedIndex);
-            Visualize(comboBox_map.SelectedIndex);
+            //ResetMapFlags();
+            PrepareToVisualization();
+            Visualize();
+        }
+
+        #region Обработчики событий для авто-генерации
+        private void comboBox_map_SelectedIndexChanged(object sender, EventArgs e) // Изменение типа отображаемой карты.
+        {
+            if (cb_sync.Checked)
+            {
+                PrepareToVisualization();
+                Visualize();
+            }
         }
 
         private void сhangedSetting_NoiseMap(object sender, EventArgs e)
         {
-            сhangedSetting_NoiseMap();
-        }
-
-        private void сhangedSetting_NoiseMap()
-        {
+            seed = (int)num_seed.Value;
             NoiseMapIsReady = false;
             HeightMapIsReady = false;
-            TemperatureMapIsReady = false;
+            ModeTemperatureMapIsReady = false;
             if (cb_sync.Checked)
             {
-                PrepareToVisualization(comboBox_map.SelectedIndex);
-                Visualize(comboBox_map.SelectedIndex);
+                PrepareToVisualization();
+                Visualize();
             }
         }
-
         private void changedSetting_HeightMap(object sender, EventArgs e)
         {
-            changedSetting_HeightMap();
-        }
-
-        private void changedSetting_HeightMap()
-        {
             HeightMapIsReady = false;
-            TemperatureMapIsReady = false;
+            ModeTemperatureMapIsReady = false;
             if (cb_sync.Checked)
             {
-                PrepareToVisualization(comboBox_map.SelectedIndex);
-                Visualize(comboBox_map.SelectedIndex);
+                PrepareToVisualization();
+                Visualize();
             }
         }
-
         private void changedSetting_TemperatureMap(object sender, EventArgs e)
         {
-            changedSetting_TemperatureMap();
-        }
-
-        private void changedSetting_TemperatureMap()
-        {
             BaseTemperatureMapIsReady = false;
-            TemperatureMapIsReady = false;
+            ModeTemperatureMapIsReady = false;
             if (cb_sync.Checked)
             {
-                PrepareToVisualization(comboBox_map.SelectedIndex);
-                Visualize(comboBox_map.SelectedIndex);
+                PrepareToVisualization();
+                Visualize();
             }
         }
 
-        private void сhangedSetting_RainNoiseMap(object sender, EventArgs e)
-        {
-            сhangedSetting_RainNoiseMap();
-        }
-
-        private void сhangedSetting_RainNoiseMap()
-        {
-            RainNoiseMapIsReady = false;
-            RainFallMapIsReady = false;
-            if (cb_sync.Checked)
-            {
-                PrepareToVisualization(comboBox_map.SelectedIndex);
-                Visualize(comboBox_map.SelectedIndex);
-            }
-        }
-
-        private void changedSetting_RainMap(object sender, EventArgs e)
-        {
-            changedSetting_RainMap();
-        }
-
-        private void changedSetting_RainMap()
-        {
-            RainFallMapIsReady = false;
-            if (cb_sync.Checked)
-            {
-                PrepareToVisualization(comboBox_map.SelectedIndex);
-                Visualize(comboBox_map.SelectedIndex);
-            }
-        }
+        #endregion
 
         #region Получение цвета
 
@@ -378,6 +331,7 @@ namespace MapGenerator
             {
                 if (rain >= c) color = RainFallColor[c];
             });
+            //Console.WriteLine(color.ToString());
             return color;
         }
 
@@ -394,7 +348,7 @@ namespace MapGenerator
 
         #endregion
 
-        #region Табличные штучки
+        #region Словари цветов
 
         private readonly Dictionary<int, Color> HeightColors = new Dictionary<int, Color>
         {
@@ -458,37 +412,16 @@ namespace MapGenerator
 
         #endregion
 
-        #region Обработчики событий для авто-генерации
-
-        #endregion
-
-        #region Космическое
-
-        private void comboBox_starType_SelectedIndexChanged(object sender, EventArgs e) // Изменение типа звезды.
+        private void cb_noise_SelectedIndexChanged(object sender, EventArgs e)
         {
-            num_temp.Value *=
-                (decimal) StarTemperature[comboBox_starType.SelectedIndex] /
-                StarTemperature
-                    [starType]; // Изменяем температуру на экваторе пропорционально изменению температуры звезды.
-            starType = comboBox_starType.SelectedIndex;
-            changedSetting_HeightMap();
+            NoiseMapIsReady = false;
+            HeightMapIsReady = false;
+            ModeTemperatureMapIsReady = false;
+            if (cb_sync.Checked)
+            {
+                PrepareToVisualization();
+                Visualize();
+            }
         }
-
-        private void num_dist_ValueChanged(object sender, EventArgs e) // Изменение расстояния до звезды.
-        {
-            num_temp.Value *=
-                dist / num_dist
-                    .Value; // Изменяем температуру на экваторе пропорционально изменению расстояния до звезды.
-            dist = num_dist.Value;
-            changedSetting_HeightMap();
-
-            // if (cb_sync.Checked) btn_generateMaps.PerformClick();
-        }
-
-        private void comboBox_planetType_SelectedIndexChanged(object sender, EventArgs e) // Изменение типа планеты
-        {
-        }
-
-        #endregion
     }
 }

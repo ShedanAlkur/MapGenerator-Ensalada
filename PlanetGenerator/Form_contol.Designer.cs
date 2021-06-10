@@ -32,22 +32,17 @@ namespace MapGenerator
         {
             this.components = new System.ComponentModel.Container();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.cb_noise = new System.Windows.Forms.ComboBox();
             this.num_mapSize = new System.Windows.Forms.NumericUpDown();
             this.label26 = new System.Windows.Forms.Label();
             this.cb_sync = new System.Windows.Forms.CheckBox();
             this.btn_generateMaps = new System.Windows.Forms.Button();
             this.label5 = new System.Windows.Forms.Label();
-            this.comboBox_map = new System.Windows.Forms.ComboBox();
+            this.cb_map = new System.Windows.Forms.ComboBox();
             this.btn_sizeChange = new System.Windows.Forms.Button();
             this.num_size = new System.Windows.Forms.NumericUpDown();
             this.label1 = new System.Windows.Forms.Label();
-            this.comboBox_starType = new System.Windows.Forms.ComboBox();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.comboBox_planetType = new System.Windows.Forms.ComboBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.num_dist = new System.Windows.Forms.NumericUpDown();
-            this.label4 = new System.Windows.Forms.Label();
             this.num_divisor = new System.Windows.Forms.NumericUpDown();
             this.label22 = new System.Windows.Forms.Label();
             this.num_tempExp = new System.Windows.Forms.NumericUpDown();
@@ -79,22 +74,15 @@ namespace MapGenerator
             this.label6 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.num_zd = new System.Windows.Forms.NumericUpDown();
+            this.label3 = new System.Windows.Forms.Label();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.num_reduction = new System.Windows.Forms.NumericUpDown();
             this.label27 = new System.Windows.Forms.Label();
-            this.groupBox7 = new System.Windows.Forms.GroupBox();
-            this.num_rainMultiplier = new System.Windows.Forms.NumericUpDown();
-            this.label17 = new System.Windows.Forms.Label();
-            this.num_rainSeed = new System.Windows.Forms.NumericUpDown();
-            this.label32 = new System.Windows.Forms.Label();
-            this.num_rainScale = new System.Windows.Forms.NumericUpDown();
-            this.label35 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_mapSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_size)).BeginInit();
-            this.groupBox2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.num_dist)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_divisor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_tempExp)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_temp)).BeginInit();
@@ -112,31 +100,48 @@ namespace MapGenerator
             ((System.ComponentModel.ISupportInitialize)(this.num_oceanLevel)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.num_zd)).BeginInit();
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_reduction)).BeginInit();
-            this.groupBox7.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.num_rainMultiplier)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.num_rainSeed)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.num_rainScale)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.label2);
+            this.groupBox1.Controls.Add(this.cb_noise);
             this.groupBox1.Controls.Add(this.num_mapSize);
             this.groupBox1.Controls.Add(this.label26);
             this.groupBox1.Controls.Add(this.cb_sync);
             this.groupBox1.Controls.Add(this.btn_generateMaps);
             this.groupBox1.Controls.Add(this.label5);
-            this.groupBox1.Controls.Add(this.comboBox_map);
+            this.groupBox1.Controls.Add(this.cb_map);
             this.groupBox1.Controls.Add(this.btn_sizeChange);
             this.groupBox1.Controls.Add(this.num_size);
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(362, 174);
+            this.groupBox1.Size = new System.Drawing.Size(362, 203);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Настройки визуализации";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(6, 125);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(119, 13);
+            this.label2.TabIndex = 14;
+            this.label2.Text = "Отображаемая карта:";
+            // 
+            // cb_noise
+            // 
+            this.cb_noise.FormattingEnabled = true;
+            this.cb_noise.Location = new System.Drawing.Point(131, 95);
+            this.cb_noise.Name = "cb_noise";
+            this.cb_noise.Size = new System.Drawing.Size(225, 21);
+            this.cb_noise.TabIndex = 13;
+            this.cb_noise.SelectedIndexChanged += new System.EventHandler(this.cb_noise_SelectedIndexChanged);
             // 
             // num_mapSize
             // 
@@ -155,7 +160,7 @@ namespace MapGenerator
             this.num_mapSize.Size = new System.Drawing.Size(69, 20);
             this.num_mapSize.TabIndex = 12;
             this.num_mapSize.Value = new decimal(new int[] {
-            300,
+            100,
             0,
             0,
             0});
@@ -175,7 +180,7 @@ namespace MapGenerator
             this.cb_sync.AutoSize = true;
             this.cb_sync.Checked = true;
             this.cb_sync.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cb_sync.Location = new System.Drawing.Point(40, 151);
+            this.cb_sync.Location = new System.Drawing.Point(40, 180);
             this.cb_sync.Name = "cb_sync";
             this.cb_sync.Size = new System.Drawing.Size(316, 17);
             this.cb_sync.TabIndex = 10;
@@ -185,7 +190,7 @@ namespace MapGenerator
             // btn_generateMaps
             // 
             this.btn_generateMaps.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.btn_generateMaps.Location = new System.Drawing.Point(9, 122);
+            this.btn_generateMaps.Location = new System.Drawing.Point(9, 151);
             this.btn_generateMaps.Name = "btn_generateMaps";
             this.btn_generateMaps.Size = new System.Drawing.Size(347, 23);
             this.btn_generateMaps.TabIndex = 4;
@@ -198,24 +203,18 @@ namespace MapGenerator
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(6, 98);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(119, 13);
+            this.label5.Size = new System.Drawing.Size(76, 13);
             this.label5.TabIndex = 7;
-            this.label5.Text = "Отображаемая карта:";
+            this.label5.Text = "Карта шумов:";
             // 
-            // comboBox_map
+            // cb_map
             // 
-            this.comboBox_map.FormattingEnabled = true;
-            this.comboBox_map.Items.AddRange(new object[] {
-            "Карта шумов Перлина",
-            "Карта высот",
-            "Карта температур на нулевой высоте",
-            "Карта температур",
-            "Карта осадков"});
-            this.comboBox_map.Location = new System.Drawing.Point(158, 95);
-            this.comboBox_map.Name = "comboBox_map";
-            this.comboBox_map.Size = new System.Drawing.Size(198, 21);
-            this.comboBox_map.TabIndex = 6;
-            this.comboBox_map.SelectedIndexChanged += new System.EventHandler(this.comboBox_map_SelectedIndexChanged);
+            this.cb_map.FormattingEnabled = true;
+            this.cb_map.Location = new System.Drawing.Point(131, 122);
+            this.cb_map.Name = "cb_map";
+            this.cb_map.Size = new System.Drawing.Size(225, 21);
+            this.cb_map.TabIndex = 6;
+            this.cb_map.SelectedIndexChanged += new System.EventHandler(this.comboBox_map_SelectedIndexChanged);
             // 
             // btn_sizeChange
             // 
@@ -239,7 +238,7 @@ namespace MapGenerator
             this.num_size.Size = new System.Drawing.Size(69, 20);
             this.num_size.TabIndex = 1;
             this.num_size.Value = new decimal(new int[] {
-            2,
+            6,
             0,
             0,
             0});
@@ -249,99 +248,9 @@ namespace MapGenerator
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(6, 16);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(107, 13);
+            this.label1.Size = new System.Drawing.Size(152, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Размер клетки (px:)";
-            // 
-            // comboBox_starType
-            // 
-            this.comboBox_starType.FormattingEnabled = true;
-            this.comboBox_starType.Items.AddRange(new object[] {
-            "O  30000K-60000K (Бело-голубой)",
-            "B  10000K-30000K (Голубовато-белый)",
-            "A  7500K-1000K (Белый)",
-            "F   6000K-7500K (бело-желтый)",
-            "G  5000K-6000K (желтый)",
-            "K   3500K-5000K (оранжевый)",
-            "M  2000-3500K (ярко-красный)"});
-            this.comboBox_starType.Location = new System.Drawing.Point(158, 18);
-            this.comboBox_starType.Name = "comboBox_starType";
-            this.comboBox_starType.Size = new System.Drawing.Size(198, 21);
-            this.comboBox_starType.TabIndex = 2;
-            this.comboBox_starType.SelectedIndexChanged += new System.EventHandler(this.comboBox_starType_SelectedIndexChanged);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(6, 21);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(70, 13);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Тип звезды:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(6, 74);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(75, 13);
-            this.label3.TabIndex = 5;
-            this.label3.Text = "Тип планеты:";
-            // 
-            // comboBox_planetType
-            // 
-            this.comboBox_planetType.FormattingEnabled = true;
-            this.comboBox_planetType.Items.AddRange(new object[] {
-            "Российская империя"});
-            this.comboBox_planetType.Location = new System.Drawing.Point(158, 71);
-            this.comboBox_planetType.Name = "comboBox_planetType";
-            this.comboBox_planetType.Size = new System.Drawing.Size(198, 21);
-            this.comboBox_planetType.TabIndex = 4;
-            this.comboBox_planetType.SelectedIndexChanged += new System.EventHandler(this.comboBox_planetType_SelectedIndexChanged);
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
-            this.groupBox2.Controls.Add(this.num_dist);
-            this.groupBox2.Controls.Add(this.label4);
-            this.groupBox2.Controls.Add(this.label3);
-            this.groupBox2.Controls.Add(this.label2);
-            this.groupBox2.Controls.Add(this.comboBox_planetType);
-            this.groupBox2.Controls.Add(this.comboBox_starType);
-            this.groupBox2.Location = new System.Drawing.Point(3, 496);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(362, 105);
-            this.groupBox2.TabIndex = 1;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Прочие настройки генерации";
-            // 
-            // num_dist
-            // 
-            this.num_dist.DecimalPlaces = 1;
-            this.num_dist.Location = new System.Drawing.Point(287, 45);
-            this.num_dist.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.num_dist.Name = "num_dist";
-            this.num_dist.Size = new System.Drawing.Size(69, 20);
-            this.num_dist.TabIndex = 3;
-            this.num_dist.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.num_dist.ValueChanged += new System.EventHandler(this.num_dist_ValueChanged);
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(6, 47);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(144, 13);
-            this.label4.TabIndex = 2;
-            this.label4.Text = "Растояние до звезды (а.е):";
+            this.label1.Text = "Размер клетки (в пикселях):";
             // 
             // num_divisor
             // 
@@ -517,11 +426,6 @@ namespace MapGenerator
             this.num_seed.Name = "num_seed";
             this.num_seed.Size = new System.Drawing.Size(69, 20);
             this.num_seed.TabIndex = 32;
-            this.num_seed.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
             this.num_seed.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
             // 
             // label15
@@ -568,7 +472,7 @@ namespace MapGenerator
             // num_scale
             // 
             this.num_scale.DecimalPlaces = 3;
-            this.num_scale.Location = new System.Drawing.Point(287, 97);
+            this.num_scale.Location = new System.Drawing.Point(287, 123);
             this.num_scale.Maximum = new decimal(new int[] {
             2000,
             0,
@@ -592,7 +496,7 @@ namespace MapGenerator
             // label13
             // 
             this.label13.AutoSize = true;
-            this.label13.Location = new System.Drawing.Point(6, 99);
+            this.label13.Location = new System.Drawing.Point(6, 125);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(114, 13);
             this.label13.TabIndex = 27;
@@ -600,7 +504,7 @@ namespace MapGenerator
             // 
             // num_octaves
             // 
-            this.num_octaves.Location = new System.Drawing.Point(287, 123);
+            this.num_octaves.Location = new System.Drawing.Point(287, 149);
             this.num_octaves.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -624,7 +528,7 @@ namespace MapGenerator
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(6, 125);
+            this.label12.Location = new System.Drawing.Point(6, 151);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(96, 13);
             this.label12.TabIndex = 25;
@@ -638,7 +542,7 @@ namespace MapGenerator
             0,
             0,
             65536});
-            this.num_persistance.Location = new System.Drawing.Point(287, 149);
+            this.num_persistance.Location = new System.Drawing.Point(287, 175);
             this.num_persistance.Name = "num_persistance";
             this.num_persistance.Size = new System.Drawing.Size(69, 20);
             this.num_persistance.TabIndex = 24;
@@ -652,7 +556,7 @@ namespace MapGenerator
             // label11
             // 
             this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(6, 151);
+            this.label11.Location = new System.Drawing.Point(6, 177);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(144, 13);
             this.label11.TabIndex = 23;
@@ -700,7 +604,7 @@ namespace MapGenerator
             this.groupBox3.Controls.Add(this.label14);
             this.groupBox3.Controls.Add(this.num_oceanLevel);
             this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Location = new System.Drawing.Point(3, 364);
+            this.groupBox3.Location = new System.Drawing.Point(3, 425);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(362, 126);
             this.groupBox3.TabIndex = 6;
@@ -765,7 +669,7 @@ namespace MapGenerator
             // num_oceanLevel
             // 
             this.num_oceanLevel.Increment = new decimal(new int[] {
-            200,
+            50,
             0,
             0,
             0});
@@ -803,16 +707,16 @@ namespace MapGenerator
             this.flowLayoutPanel1.Controls.Add(this.groupBox1);
             this.flowLayoutPanel1.Controls.Add(this.groupBox4);
             this.flowLayoutPanel1.Controls.Add(this.groupBox3);
-            this.flowLayoutPanel1.Controls.Add(this.groupBox2);
             this.flowLayoutPanel1.Controls.Add(this.groupBox6);
-            this.flowLayoutPanel1.Controls.Add(this.groupBox7);
             this.flowLayoutPanel1.Location = new System.Drawing.Point(12, 12);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(394, 746);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(383, 704);
             this.flowLayoutPanel1.TabIndex = 7;
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.num_zd);
+            this.groupBox4.Controls.Add(this.label3);
             this.groupBox4.Controls.Add(this.num_yd);
             this.groupBox4.Controls.Add(this.num_persistance);
             this.groupBox4.Controls.Add(this.label16);
@@ -825,12 +729,43 @@ namespace MapGenerator
             this.groupBox4.Controls.Add(this.num_octaves);
             this.groupBox4.Controls.Add(this.num_scale);
             this.groupBox4.Controls.Add(this.label13);
-            this.groupBox4.Location = new System.Drawing.Point(3, 183);
+            this.groupBox4.Location = new System.Drawing.Point(3, 212);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(362, 175);
+            this.groupBox4.Size = new System.Drawing.Size(362, 207);
             this.groupBox4.TabIndex = 7;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Настройки генерации карты шумов для ландшафта";
+            // 
+            // num_zd
+            // 
+            this.num_zd.Increment = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            this.num_zd.Location = new System.Drawing.Point(287, 97);
+            this.num_zd.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.num_zd.Minimum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            -2147483648});
+            this.num_zd.Name = "num_zd";
+            this.num_zd.Size = new System.Drawing.Size(69, 20);
+            this.num_zd.TabIndex = 36;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(6, 99);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(193, 13);
+            this.label3.TabIndex = 35;
+            this.label3.Text = "Смещение z (если поддерживается):";
             // 
             // groupBox6
             // 
@@ -844,7 +779,7 @@ namespace MapGenerator
             this.groupBox6.Controls.Add(this.num_equator);
             this.groupBox6.Controls.Add(this.label9);
             this.groupBox6.Controls.Add(this.label21);
-            this.groupBox6.Location = new System.Drawing.Point(3, 607);
+            this.groupBox6.Location = new System.Drawing.Point(3, 557);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(362, 156);
             this.groupBox6.TabIndex = 9;
@@ -884,113 +819,11 @@ namespace MapGenerator
             this.label27.TabIndex = 47;
             this.label27.Text = "Уменьшение темп. с высотой (C/км) (reduction):";
             // 
-            // groupBox7
-            // 
-            this.groupBox7.Controls.Add(this.num_rainMultiplier);
-            this.groupBox7.Controls.Add(this.label17);
-            this.groupBox7.Controls.Add(this.num_rainSeed);
-            this.groupBox7.Controls.Add(this.label32);
-            this.groupBox7.Controls.Add(this.num_rainScale);
-            this.groupBox7.Controls.Add(this.label35);
-            this.groupBox7.Location = new System.Drawing.Point(3, 769);
-            this.groupBox7.Name = "groupBox7";
-            this.groupBox7.Size = new System.Drawing.Size(362, 95);
-            this.groupBox7.TabIndex = 10;
-            this.groupBox7.TabStop = false;
-            this.groupBox7.Text = "Настройки генерации карты шумов для осадков";
-            // 
-            // num_rainMultiplier
-            // 
-            this.num_rainMultiplier.Increment = new decimal(new int[] {
-            50,
-            0,
-            0,
-            0});
-            this.num_rainMultiplier.Location = new System.Drawing.Point(287, 71);
-            this.num_rainMultiplier.Maximum = new decimal(new int[] {
-            100000,
-            0,
-            0,
-            0});
-            this.num_rainMultiplier.Name = "num_rainMultiplier";
-            this.num_rainMultiplier.Size = new System.Drawing.Size(69, 20);
-            this.num_rainMultiplier.TabIndex = 30;
-            this.num_rainMultiplier.Value = new decimal(new int[] {
-            2500,
-            0,
-            0,
-            0});
-            this.num_rainMultiplier.ValueChanged += new System.EventHandler(this.changedSetting_RainMap);
-            // 
-            // label17
-            // 
-            this.label17.AutoSize = true;
-            this.label17.Location = new System.Drawing.Point(6, 73);
-            this.label17.Name = "label17";
-            this.label17.Size = new System.Drawing.Size(113, 13);
-            this.label17.TabIndex = 29;
-            this.label17.Text = "Множитель осадков:";
-            // 
-            // num_rainSeed
-            // 
-            this.num_rainSeed.Location = new System.Drawing.Point(287, 19);
-            this.num_rainSeed.Name = "num_rainSeed";
-            this.num_rainSeed.Size = new System.Drawing.Size(69, 20);
-            this.num_rainSeed.TabIndex = 32;
-            this.num_rainSeed.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.num_rainSeed.ValueChanged += new System.EventHandler(this.сhangedSetting_RainNoiseMap);
-            // 
-            // label32
-            // 
-            this.label32.AutoSize = true;
-            this.label32.Location = new System.Drawing.Point(6, 21);
-            this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(125, 13);
-            this.label32.TabIndex = 31;
-            this.label32.Text = "Семя генерации (seed):";
-            // 
-            // num_rainScale
-            // 
-            this.num_rainScale.DecimalPlaces = 3;
-            this.num_rainScale.Location = new System.Drawing.Point(287, 45);
-            this.num_rainScale.Maximum = new decimal(new int[] {
-            2000,
-            0,
-            0,
-            0});
-            this.num_rainScale.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.num_rainScale.Name = "num_rainScale";
-            this.num_rainScale.Size = new System.Drawing.Size(69, 20);
-            this.num_rainScale.TabIndex = 28;
-            this.num_rainScale.Value = new decimal(new int[] {
-            20,
-            0,
-            0,
-            0});
-            this.num_rainScale.ValueChanged += new System.EventHandler(this.сhangedSetting_RainNoiseMap);
-            // 
-            // label35
-            // 
-            this.label35.AutoSize = true;
-            this.label35.Location = new System.Drawing.Point(6, 47);
-            this.label35.Name = "label35";
-            this.label35.Size = new System.Drawing.Size(114, 13);
-            this.label35.TabIndex = 27;
-            this.label35.Text = "Приближение (scale):";
-            // 
             // Form_contol
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(418, 770);
+            this.ClientSize = new System.Drawing.Size(407, 728);
             this.Controls.Add(this.flowLayoutPanel1);
             this.Name = "Form_contol";
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
@@ -1000,9 +833,6 @@ namespace MapGenerator
             this.groupBox1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_mapSize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_size)).EndInit();
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.num_dist)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_divisor)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_tempExp)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_temp)).EndInit();
@@ -1022,14 +852,10 @@ namespace MapGenerator
             this.flowLayoutPanel1.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.num_zd)).EndInit();
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_reduction)).EndInit();
-            this.groupBox7.ResumeLayout(false);
-            this.groupBox7.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.num_rainMultiplier)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.num_rainSeed)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.num_rainScale)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1042,15 +868,8 @@ namespace MapGenerator
         private System.Windows.Forms.Button btn_sizeChange;
         private System.Windows.Forms.NumericUpDown num_size;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ComboBox comboBox_starType;
-        private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.ComboBox comboBox_planetType;
-        private System.Windows.Forms.GroupBox groupBox2;
-        private System.Windows.Forms.NumericUpDown num_dist;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
-        private System.Windows.Forms.ComboBox comboBox_map;
+        private System.Windows.Forms.ComboBox cb_map;
         private System.Windows.Forms.NumericUpDown num_temp;
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button btn_generateMaps;
@@ -1090,12 +909,9 @@ namespace MapGenerator
         private System.Windows.Forms.Label label27;
         private System.Windows.Forms.NumericUpDown num_mapSize;
         private System.Windows.Forms.Label label26;
-        private System.Windows.Forms.GroupBox groupBox7;
-        private System.Windows.Forms.NumericUpDown num_rainSeed;
-        private System.Windows.Forms.Label label32;
-        private System.Windows.Forms.NumericUpDown num_rainScale;
-        private System.Windows.Forms.Label label35;
-        private System.Windows.Forms.NumericUpDown num_rainMultiplier;
-        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.ComboBox cb_noise;
+        private System.Windows.Forms.NumericUpDown num_zd;
+        private System.Windows.Forms.Label label3;
     }
 }

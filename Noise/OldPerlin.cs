@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace MapGenerator
+namespace Noise.Perlin
 {
     /// <summary>
     ///     Класс для генерации шума Перлина в 2D,3D пространстве.

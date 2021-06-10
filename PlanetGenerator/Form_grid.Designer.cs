@@ -28,12 +28,14 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
             this.PanelForCanvas = new System.Windows.Forms.Panel();
             this.PanelCanvas = new System.Windows.Forms.Panel();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
-            this.status_label1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.lbl_coord = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lbl_noise = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lbl_height = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lbl_baseTemp = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lbl_modeTemp = new System.Windows.Forms.ToolStripStatusLabel();
             this.PanelForCanvas.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -64,22 +66,48 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.status_label1});
+            this.lbl_coord,
+            this.lbl_noise,
+            this.lbl_height,
+            this.lbl_baseTemp,
+            this.lbl_modeTemp});
             this.statusStrip1.Location = new System.Drawing.Point(0, 741);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(743, 22);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // status_label1
+            // coord
             // 
-            this.status_label1.Name = "status_label1";
-            this.status_label1.Size = new System.Drawing.Size(32, 17);
-            this.status_label1.Text = "label";
+            this.lbl_coord.Name = "coord";
+            this.lbl_coord.Size = new System.Drawing.Size(32, 17);
+            this.lbl_coord.Text = "label";
             // 
-            // timer1
+            // lbl_noise
             // 
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.lbl_noise.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.lbl_noise.Name = "lbl_noise";
+            this.lbl_noise.Size = new System.Drawing.Size(35, 17);
+            this.lbl_noise.Text = "noise";
+            // 
+            // lbl_height
+            // 
+            this.lbl_height.Name = "lbl_height";
+            this.lbl_height.Size = new System.Drawing.Size(41, 17);
+            this.lbl_height.Text = "height";
+            // 
+            // lbl_baseTemp
+            // 
+            this.lbl_baseTemp.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.lbl_baseTemp.Name = "lbl_baseTemp";
+            this.lbl_baseTemp.Size = new System.Drawing.Size(62, 17);
+            this.lbl_baseTemp.Text = "baseTemp";
+            // 
+            // lbl_modeTemp
+            // 
+            this.lbl_modeTemp.Name = "lbl_modeTemp";
+            this.lbl_modeTemp.Size = new System.Drawing.Size(69, 17);
+            this.lbl_modeTemp.Text = "modeTemp";
             // 
             // Form_grid
             // 
@@ -105,8 +133,11 @@
         private System.Windows.Forms.Panel PanelForCanvas;
         private System.Windows.Forms.Panel PanelCanvas;
         private System.Windows.Forms.StatusStrip statusStrip1;
-        private System.Windows.Forms.ToolStripStatusLabel status_label1;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.ToolStripStatusLabel lbl_coord;
+        private System.Windows.Forms.ToolStripStatusLabel lbl_noise;
+        private System.Windows.Forms.ToolStripStatusLabel lbl_height;
+        private System.Windows.Forms.ToolStripStatusLabel lbl_baseTemp;
+        private System.Windows.Forms.ToolStripStatusLabel lbl_modeTemp;
     }
 }
 

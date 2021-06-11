@@ -5,7 +5,7 @@ namespace Noise.Perlin
     /// <summary>
     ///     Класс для генерации шума Перлина в 2D,3D пространстве.
     /// </summary>
-    public class Perlin
+    public class PerlinExperimental1
     {
         private static int left, top, zoom, time, v;
         static int c1, c2, c5;
@@ -34,7 +34,7 @@ namespace Noise.Perlin
         private readonly double[] permutationTable;
         private readonly int seed;
 
-        public Perlin(int seed = 0)
+        public PerlinExperimental1(int seed = 0)
         {
             this.seed = seed;
             var rand = new Random(seed);

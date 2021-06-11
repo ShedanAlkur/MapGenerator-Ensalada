@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OldPerlin.cs" />
+    <Compile Include="Perlin experimental 1.cs" />
     <Compile Include="Perlin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -39,7 +39,7 @@ namespace PerfomanceTest
             Console.WriteLine(res);
         }
 
-        [TestMethod]        
+        [TestMethod]
         public void FloorComprasion()
         {
             const int numberOfTests = 100000;
@@ -73,7 +73,7 @@ namespace PerfomanceTest
         {
             const int numberOfTests = 10000 * 10000;
             Perlin perlin1 = new Perlin(0);
-            PerlinExperimental1 perlin2 = new PerlinExperimental1(0);
+            PerlinExp1 perlin2 = new PerlinExp1(0);
             Stopwatch sw = new Stopwatch();
             string res;
 
@@ -103,9 +103,9 @@ namespace PerfomanceTest
             double[] arrayB = new double[numberOfTests];
             for (int i = 0; i < numberOfTests; i++)
             {
-                arrayT[i] = rnd.NextDouble()*100;
-                arrayA[i] = rnd.NextDouble()*100;
-                arrayB[i] = rnd.NextDouble()*100;
+                arrayT[i] = rnd.NextDouble() * 100;
+                arrayA[i] = rnd.NextDouble() * 100;
+                arrayB[i] = rnd.NextDouble() * 100;
             }
             double c;
 
@@ -135,7 +135,7 @@ namespace PerfomanceTest
             Console.WriteLine($"Lerp локальный{numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
         } // Лучше писать вычисления вместо вызова функции lerp
 
-    private static double Lerp1(double t, double a, double b)
+        private static double Lerp1(double t, double a, double b)
         {
             return a + t * (b - a);
         }
@@ -144,6 +144,74 @@ namespace PerfomanceTest
         private static double Lerp2(double t, double a, double b)
         {
             return a + t * (b - a);
+        }
+
+        [TestMethod]
+        public void FloorPerfomanse()
+        {
+            const int numberOfTests = 30000000;
+            Random rnd = new Random(0);
+            Stopwatch sw = new Stopwatch();
+            double[] array = new double[numberOfTests];
+            int[] array1 = new int[numberOfTests];
+            int[] array2 = new int[numberOfTests];
+            int[] array3 = new int[numberOfTests];
+            for (int i = 0; i < numberOfTests; i++)
+            {
+                array[i] = rnd.NextDouble() * 10000-5000;
+            }
+
+            int iv;
+            double dv;
+
+            sw.Restart();
+            for (int i = 0; i < numberOfTests; i++)
+                array1[i] = (int)Math.Floor(array[i]);
+            sw.Stop();
+            Console.WriteLine($"Math.Floor() {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
+
+            sw.Restart();
+            for (int i = 0; i < numberOfTests; i++)
+            {
+                if (array[i] < 0 && array[i] % -1 != 0) array2[i] = (int)(array[i] - 1);
+                else array2[i] = (int)array[i];
+            }
+            sw.Stop();
+            Console.WriteLine($"Inline floor {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
+
+            sw.Restart();
+            for (int i = 0; i < numberOfTests; i++)
+                array3[i] = ((array[i] < 0 && array[i] % -1 != 0)) ? (int)(array[i] - 1) : (int)array[i];
+            sw.Stop();
+            Console.WriteLine($"Inline ternary floor {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
+
+            CollectionAssert.AreEquivalent(array1, array2);
+            CollectionAssert.AreEquivalent(array1, array3);
+        }
+
+        [TestMethod]
+        public void SmoothPerfomanse()
+        {
+            const int numberOfTests = 4000000;
+            Random rnd = new Random(0);
+            Stopwatch sw = new Stopwatch();
+            double[] array = new double[numberOfTests];
+            for (int i = 0; i < numberOfTests; i++)
+            {
+                array[i] = rnd.NextDouble();
+            }
+
+            sw.Restart();
+            for (int i = 0; i < numberOfTests; i++)
+                PerlinExp2.SmoothStep(array[i]);
+            sw.Stop();
+            Console.WriteLine($"SmoothStep {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
+
+            sw.Restart();
+            for (int i = 0; i < numberOfTests; i++)
+                PerlinExp2.QunticCurve(array[i]);
+            sw.Stop();
+            Console.WriteLine($"QunticCurve {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
         }
     }
 }

@@ -15,16 +15,36 @@ namespace MapGenerator
         private int mapSize; // Сохраненный размер (ширина) карты
 
         public double[] NoiseMap;
-        public bool NoiseMapIsReady; // Готовность карты шумов.
+        public bool noiseMapIsReady; // Готовность карты шумов.
+        public bool NoiseMapIsReady
+        {
+            get => noiseMapIsReady;
+            set { noiseMapIsReady = value; HeightMapIsReady = false; }
+        }
 
         public int[] HeightMap;
-        public bool HeightMapIsReady; // Готовность карты высот к отображению.
+        public bool heightMapIsReady; // Готовность карты высот к отображению.
+        public bool HeightMapIsReady
+        {
+            get => heightMapIsReady;
+            set { heightMapIsReady = value; ModeTemperatureMapIsReady = false; }
+        }
 
         public int[] BaseTemperatureMap;
-        public bool BaseTemperatureMapIsReady; // Готовность карты начальных температур к отображению.
+        public bool baseTemperatureMapIsReady; // Готовность карты начальных температур к отображению.
+        public bool BaseTemperatureMapIsReady
+        {
+            get => baseTemperatureMapIsReady;
+            set { baseTemperatureMapIsReady = value; ModeTemperatureMapIsReady = false; }
+        }
 
         public int[] ModeTemperatureMap;
-        public bool ModeTemperatureMapIsReady; // Готовность карты итоговых температур к отображению.
+        public bool modeTemperatureMapIsReady; // Готовность карты итоговых температур к отображению.
+        public bool ModeTemperatureMapIsReady
+        {
+            get => modeTemperatureMapIsReady;
+            set { modeTemperatureMapIsReady = value; }
+        }
 
         public Form_contol()
         {
@@ -33,9 +53,15 @@ namespace MapGenerator
 
         readonly Dictionary<string, NoiseMapType> DictNoiseMapType = new Dictionary<string, NoiseMapType>()
         {
+            ["Тестовый шум А"] = NoiseMapType.testedA,
+            ["Тестовый шум В"] = NoiseMapType.testedB,
+            ["Тестовый шум C"] = NoiseMapType.testedC,
+            ["Тестовый шум D"] = NoiseMapType.testedD,
             ["2D шум"] = NoiseMapType.simple2d,
+            ["domainWarped2D"] = NoiseMapType.domainWarped2D,
             ["3D шум с Z смещением"] = NoiseMapType.simple3d,
             ["3D шум, замкнутый по X"] = NoiseMapType.looped3d,
+            ["domainWarped3D"] = NoiseMapType.domainWarped3D,
             ["4D шум, замкнутый по X и Y"] = NoiseMapType.looped4d,
         };
 
@@ -65,7 +91,7 @@ namespace MapGenerator
             ModeTemperatureMap = new int[mapSize * mapSize];
 
             foreach (string key in DictNoiseMapType.Keys) cb_noise.Items.Add(key);
-            cb_noise.SelectedIndex = 0;
+            cb_noise.SelectedIndex = 1;
             foreach (string key in DictShowedMapType.Keys) cb_map.Items.Add(key);
             cb_map.SelectedIndex = 0;
 
@@ -76,10 +102,10 @@ namespace MapGenerator
 
         void ResetMapFlags()
         {
-            NoiseMapIsReady = false;
-            HeightMapIsReady = false;
-            BaseTemperatureMapIsReady = false;
-            ModeTemperatureMapIsReady = false;
+            noiseMapIsReady = false;
+            heightMapIsReady = false;
+            baseTemperatureMapIsReady = false;
+            modeTemperatureMapIsReady = false;
         }
 
         void Visualize()
@@ -91,10 +117,7 @@ namespace MapGenerator
             catch (Exception _){ }
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="showedMapType"></param>
+
         void Visualize(ShowedMapType showedMapType)
         {
             switch (showedMapType)
@@ -153,16 +176,28 @@ namespace MapGenerator
 
         void PrepareNoiseMap(NoiseMapType noiseMapType)
         {
-            if (!NoiseMapIsReady)
+            if (NoiseMapIsReady) return;
+            switch (noiseMapType)
             {
-                //NoiseMap = new double[(int)num_mapSize.Value * (int)num_mapSize.Value];
-                NoiseMap = MapGenerator.NoiseMap(seed, mapSize,
-                    (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-                    (float)num_persistance.Value);
-                NoiseMapIsReady = true;
+                case NoiseMapType.testedA:
+                    NoiseMap = MapGenerator.NoiseMap_testedA(seed, mapSize,
+                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                (float)num_persistance.Value);
+                    break;
+                case NoiseMapType.testedB:
+                    NoiseMap = MapGenerator.NoiseMap_testedB(seed, mapSize,
+                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                (float)num_persistance.Value);
+                    break;
+                default: return;
             }
+            //todo: поддержка выбора типа шума прямо в контролере
+            //NoiseMap = new double[(int)num_mapSize.Value * (int)num_mapSize.Value];
+
+            NoiseMapIsReady = true;
+
         }
-        void PrepareHeightMap()
+    void PrepareHeightMap()
         {
             if (!HeightMapIsReady)
             {
@@ -267,6 +302,17 @@ namespace MapGenerator
         }
 
         #region Обработчики событий для авто-генерации
+
+        private void cb_noise_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            NoiseMapIsReady = false;
+            if (cb_sync.Checked)
+            {
+                PrepareToVisualization();
+                Visualize();
+            }
+        }
+
         private void comboBox_map_SelectedIndexChanged(object sender, EventArgs e) // Изменение типа отображаемой карты.
         {
             if (cb_sync.Checked)
@@ -280,8 +326,6 @@ namespace MapGenerator
         {
             seed = (int)num_seed.Value;
             NoiseMapIsReady = false;
-            HeightMapIsReady = false;
-            ModeTemperatureMapIsReady = false;
             if (cb_sync.Checked)
             {
                 PrepareToVisualization();
@@ -291,7 +335,6 @@ namespace MapGenerator
         private void changedSetting_HeightMap(object sender, EventArgs e)
         {
             HeightMapIsReady = false;
-            ModeTemperatureMapIsReady = false;
             if (cb_sync.Checked)
             {
                 PrepareToVisualization();
@@ -301,13 +344,14 @@ namespace MapGenerator
         private void changedSetting_TemperatureMap(object sender, EventArgs e)
         {
             BaseTemperatureMapIsReady = false;
-            ModeTemperatureMapIsReady = false;
             if (cb_sync.Checked)
             {
                 PrepareToVisualization();
                 Visualize();
             }
         }
+
+
 
         #endregion
 
@@ -410,18 +454,7 @@ namespace MapGenerator
             2000 // M
         };
 
-        #endregion
+    #endregion
 
-        private void cb_noise_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            NoiseMapIsReady = false;
-            HeightMapIsReady = false;
-            ModeTemperatureMapIsReady = false;
-            if (cb_sync.Checked)
-            {
-                PrepareToVisualization();
-                Visualize();
-            }
-        }
-    }
+}
 }

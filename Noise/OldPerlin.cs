@@ -2,6 +2,7 @@
 
 namespace Noise.Perlin
 {
+#if DEBUG
     /// <summary>
     ///     Класс для генерации шума Перлина в 2D,3D пространстве.
     /// </summary>
@@ -216,16 +217,16 @@ namespace Noise.Perlin
             // хэш-функция с Простыми числами, обрезкой результата до размера массива со случайными байтами
             var v = (int) (((x * 1836311903) ^ (y * 2971215073) ^ (y * 1836311903 + 4807526976)) &
                            1023); // псевдо-случайное число от 0 до 3 которое всегда неизменно при данных x и y
-            var rand = new Random(seed * v);
-            //v = permutationTable[v] & 3;
-            return new[]
-                {(float) Math.Cos(rand.NextDouble() * 2 * Math.PI), (float) Math.Sin(rand.NextDouble() * 2 * Math.PI)};
+            //var rand = new Random(seed * v);
+            v = permutationTable[v] & 3;
+            //return new[]
+            //    {(float) Math.Cos(rand.NextDouble() * 2 * Math.PI), (float) Math.Sin(rand.NextDouble() * 2 * Math.PI)};
             switch (v)
             {
-                case 0: return new float[] {1, 0};
-                case 1: return new float[] {-1, 0};
-                case 2: return new float[] {0, 1};
-                default: return new float[] {0, -1};
+                case 0: return new float[] { 1, 0 };
+                case 1: return new float[] { -1, 0 };
+                case 2: return new float[] { 0, 1 };
+                default: return new float[] { 0, -1 };
             }
         }
 
@@ -287,4 +288,5 @@ namespace Noise.Perlin
 
         #endregion
     }
+#endif
 }

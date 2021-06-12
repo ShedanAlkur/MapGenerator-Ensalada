@@ -6,7 +6,13 @@ namespace MapGenerator
 {
     public enum NoiseMapType
     {
+        testedA,
+        testedB,
+        testedC,
+        testedD,
         simple2d,
+        domainWarped2D,
+        domainWarped3D,
         simple3d,
         looped3d,
         looped4d,
@@ -33,24 +39,76 @@ namespace MapGenerator
         private static double angle_a, angle_b;
         private static int x, y, index;
 
-        public static double[] NoiseMap(NoiseMapType noiseMapType, int seed, int size, double scale, int dx = 0, int dy = 0,
+        #region Генерация карт шумов
+
+        public static double[] NoiseMap_testedA( int seed, int size, double scale, int dx = 0, int dy = 0,
         int octaves = 3, double persistence = 0.5f)
         {
-            switch (noiseMapType)
+            var map = new double[size * size];
+            var perlin = new PerlinExp1(seed);
+            stopwatch.Start();
+            for (y = 0; y < size; y++)
             {
-                case NoiseMapType.simple2d:
-                    break;
-                case NoiseMapType.simple3d:
-                    break;
-                case NoiseMapType.looped3d:
-                    break;
-                case NoiseMapType.looped4d:
-                    break;
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    map[index] = perlin.Noise(tx, ty, octaves, persistence); // Плоская карта
+                    ++index;
+                }
             }
 
-            throw new NotImplementedException();
+            NormalizeMatrix(ref map, -1, 1); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedA: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
         }
 
+        public static double[] NoiseMap_testedB(int seed, int size, double scale, int dx = 0, int dy = 0,
+        int octaves = 3, double persistence = 0.5f)
+        {
+            double octaveScale = (2 - Math.Pow(2, 1 - octaves));
+            var map = new double[size * size];
+            var perlin = new PerlinExp2(seed);
+            stopwatch.Start();
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    map[index] = perlin.Noise(tx, ty, octaves, persistence) / octaveScale; // Плоская карта
+                    ++index;
+                }
+            }
+
+            int dimension = 2;
+            max = 0.5 * Math.Sqrt(dimension);
+            double scaleFactor = 2 * Math.Pow(dimension, -0.5);
+
+            double localMax = double.NegativeInfinity;
+            double localMin = double.PositiveInfinity;
+
+            //for (int i = 0; i < map.Length; i++)
+            //    map[i] *= scaleFactor / octaveScale;
+
+            foreach (var v in map)
+                if (v > localMax) localMax = v;
+                else if (v < localMin) localMin = v;
+
+            Console.WriteLine($"max?={max}; localMax={localMax}; localMin={localMin}");
+
+            NormalizeMatrix(ref map, -max, max); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedB: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
 
 
         /// <summary>
@@ -69,11 +127,6 @@ namespace MapGenerator
         double persistence = 0.5f)
         {
 
-            double d1 = 1.2 / scale;
-            double d2 = 2.3 / scale;
-            double d3 = 3.5 / scale;
-            double d4 = 4.2 / scale;
-
             //double preadictedMin = -0.5 * Math.Sqrt(2);
 
             var map = new double[size * size];
@@ -91,7 +144,8 @@ namespace MapGenerator
                     tx = (x + dx) / scale; // x с учетом смещение и приближения карты
                     angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
 
-                    map[index] = perlin.Noise(tx, ty, octaves, persistence); // Плоская карта
+                    //map[index] = perlin.Noise(tx, ty, octaves, persistence); // Плоская карта
+
                     //x +noise(x + ?,y + ?), y + noise(x + ?,y + ?) // domain warped noise
 
                     // Удалить
@@ -105,7 +159,7 @@ namespace MapGenerator
                     //map[index] = perlin.Noise(tx + mode * xq, ty + mode * yq, octaves); // Плоская карта с домэин деформрмэтион
 
 
-                    //map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty, octaves, persistence); // Карта цилиндр
+                    map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty, octaves, persistence); // Карта цилиндр
 
                     //double rx = R * Math.Cos(angle_a);
                     //double ry = R * Math.Sin(angle_a);
@@ -128,6 +182,31 @@ namespace MapGenerator
                 }
             }
 
+            /*
+            Базовый диапазое шума и 1 октаве в n-мерном пространстве
+            f(n) = +-0.5*sqrt(n)
+
+            При 1/2/3/4 октавах происходит увеличение на 0/50/75/87.5%
+            g(o) = 2 - 2^(1-o)
+
+            Итоговый диапазон f(n)*g(o) = (+-0.5*sqrt(n))*(2 - 2^(1-o)) = 
+             */
+
+            //int dimension = 3;
+            //max = 0.5 * Math.Sqrt(dimension); // / (2 - Math.Pow(2, 1 - octaves));
+
+            //double localMax = double.NegativeInfinity;
+            //double localMin = double.PositiveInfinity;
+
+            //for (int i = 0; i < map[i]; i++)
+            //    map[i] *= (2 - Math.Pow(2, 1 - octaves));
+
+            //foreach (var v in map)
+            //    if (v > localMax) localMax = v;
+            //    else if (v < localMin) localMin = v;
+
+            //Console.WriteLine($"max={max}; localMax={localMax}; localMin={localMin}");
+
             NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
             stopwatch.Stop();
@@ -135,6 +214,8 @@ namespace MapGenerator
             stopwatch.Reset();
             return map;
         }
+
+        #endregion
 
         public static void NormalizeMatrix(ref double[] matrix)
         {

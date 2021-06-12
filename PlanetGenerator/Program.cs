@@ -12,8 +12,6 @@ namespace MapGenerator
         [STAThread]
         private static void Main()
         {
-            PerlinExp3 perlin = new PerlinExp3(0, 3, 1, 0.5);
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form_contol());

@@ -91,7 +91,7 @@ namespace MapGenerator
             ModeTemperatureMap = new int[mapSize * mapSize];
 
             foreach (string key in DictNoiseMapType.Keys) cb_noise.Items.Add(key);
-            cb_noise.SelectedIndex = 1;
+            cb_noise.SelectedIndex = 2;
             foreach (string key in DictShowedMapType.Keys) cb_map.Items.Add(key);
             cb_map.SelectedIndex = 0;
 
@@ -184,11 +184,32 @@ namespace MapGenerator
                 (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
                 (float)num_persistance.Value);
                     break;
+
                 case NoiseMapType.testedB:
                     NoiseMap = MapGenerator.NoiseMap_testedB(seed, mapSize,
                 (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
                 (float)num_persistance.Value);
                     break;
+
+                case NoiseMapType.testedC:
+                    NoiseMap = MapGenerator.NoiseMap_testedC(seed, mapSize,
+                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                (float)num_persistance.Value);
+                    break;
+
+                case NoiseMapType.testedD:
+                    NoiseMap = MapGenerator.NoiseMap_testedD(seed, mapSize,
+                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                (float)num_persistance.Value);
+                    break;
+
+
+                case NoiseMapType.looped3d:
+                    NoiseMap = MapGenerator.NoiseMap(seed, mapSize,
+                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                (float)num_persistance.Value);
+                    break;
+
                 default: return;
             }
             //todo: поддержка выбора типа шума прямо в контролере
@@ -197,7 +218,7 @@ namespace MapGenerator
             NoiseMapIsReady = true;
 
         }
-    void PrepareHeightMap()
+        void PrepareHeightMap()
         {
             if (!HeightMapIsReady)
             {
@@ -239,7 +260,7 @@ namespace MapGenerator
             {
                 PrepareToVisualization(DictNoiseMapType[cb_noise.Text], DictShowedMapType[cb_map.Text]);
             }
-            catch (Exception _) { }
+            catch (System.Collections.Generic.KeyNotFoundException _) { }
         }
 
         /// <summary>

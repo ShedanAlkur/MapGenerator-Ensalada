@@ -196,52 +196,36 @@ namespace Noise.Perlin
             var c4 = zoom * 3735486054;
             var c5 = top * 2971215073;
 
-            v = (int)(c2 ^ c5 ^ c4 ^
-                       c1);
-
+            v = (int)(c2 ^ c5 ^ c4 ^ c1);
             ftx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
                    pointInQuadZ * permutationTable[(v * 3) & 1023];
 
-            v = (int)(((left + 1) * 1836311903) ^ c5 ^ c4 ^
-                       c1);
-
+            v = (int)(((left + 1) * 1836311903) ^ c5 ^ c4 ^ c1);
             ftx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
                    pointInQuadZ * permutationTable[(v * 3) & 1023];
 
-            v = (int)(c2 ^ ((top + 1) * 2971215073) ^ c4 ^
-                       c1);
-
+            v = (int)(c2 ^ ((top + 1) * 2971215073) ^ c4 ^ c1);
             fbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
                    pointInQuadZ * permutationTable[(v * 3) & 1023];
 
-            v = (int)(((left + 1) * 1836311903) ^ ((top + 1) * 2971215073) ^ c4 ^
-                       c1);
-
+            v = (int)(((left + 1) * 1836311903) ^ ((top + 1) * 2971215073) ^ c4 ^ c1);
             fbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
                    (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
                    pointInQuadZ * permutationTable[(v * 3) & 1023];
 
-            v = (int)(c2 ^ c5 ^ ((zoom + 1) * 3735486054) ^
-                       c1);
-
+            v = (int)(c2 ^ c5 ^ ((zoom + 1) * 3735486054) ^ c1);
             ztx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
                    (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023];
 
-            v = (int)(((left + 1) * 1836311903) ^ c5 ^ ((zoom + 1) * 3735486054) ^
-                       c1);
-
+            v = (int)(((left + 1) * 1836311903) ^ c5 ^ ((zoom + 1) * 3735486054) ^ c1);
             ztx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
                    (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023];
 
-            v = (int)(c2 ^ ((top + 1) * 2971215073) ^ ((zoom + 1) * 3735486054) ^
-                       c1);
-
+            v = (int)(c2 ^ ((top + 1) * 2971215073) ^ ((zoom + 1) * 3735486054) ^ c1);
             zbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
                    (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023];
 
-            v = (int)(((left + 1) * 1836311903) ^ ((top + 1) * 2971215073) ^ ((zoom + 1) * 3735486054) ^
-                       c1);
-
+            v = (int)(((left + 1) * 1836311903) ^ ((top + 1) * 2971215073) ^ ((zoom + 1) * 3735486054) ^ c1);
             zbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
                    (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
                    (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023];

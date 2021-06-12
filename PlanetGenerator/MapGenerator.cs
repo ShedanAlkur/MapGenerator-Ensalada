@@ -67,6 +67,82 @@ namespace MapGenerator
             return map;
         }
 
+        public static double[] NoiseMap_testedC(int seed, int size, double scale, int dx = 0, int dy = 0,
+            int octaves = 3, double persistence = 0.5f)
+        {
+            var map = new double[size * size];
+            var perlin = new PerlinExp3(seed, 3, octaves);
+            stopwatch.Start();
+            L = size / scale; // Длина окружности, сечения тородида
+            R = L / TAU; // Радиус окружности, сечения тороида
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                angle_b = TAU * ty / L; // Текущий угол поворота от координаты y
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
+                    //map[index] = perlin.Noise(tx, ty); // Плоская карта
+                    //map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty); // Карта цилиндр
+                    map[index] = perlin.Noise(tx, ty, persistence); // Карта цилиндр
+
+                    ++index;
+                }
+            }
+
+            int dimension = 2;
+            max = 0.5 * Math.Sqrt(dimension);
+            double scaleFactor = 2 * Math.Pow(dimension, -0.5);
+            double octaveFactor = 2 - Math.Pow(2, 1 - octaves);
+
+            double localMax = double.NegativeInfinity;
+            double localMin = double.PositiveInfinity;
+
+            for (int i = 0; i < map.Length; i++)
+                map[i] /= octaveFactor;
+
+            foreach (var v in map)
+                if (v > localMax) localMax = v;
+                else if (v < localMin) localMin = v;
+
+            Console.WriteLine($"max?={max}; localMax={localMax}; localMin={localMin}");
+
+            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedC: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
+        public static double[] NoiseMap_testedD(int seed, int size, double scale, int dx = 0, int dy = 0,
+    int octaves = 3, double persistence = 0.5f)
+        {
+            var map = new double[size * size];
+            var perlin = new OldPerlin(seed);
+            stopwatch.Start();
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    map[index] = perlin.Noise((float)tx, (float)ty, octaves); // Плоская карта
+                    ++index;
+                }
+            }
+
+            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedC: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
         public static double[] NoiseMap_testedB(int seed, int size, double scale, int dx = 0, int dy = 0,
         int octaves = 3, double persistence = 0.5f)
         {
@@ -213,6 +289,36 @@ namespace MapGenerator
             Console.WriteLine("Время, ушедшее на генерацию карты шумов: " + stopwatch.ElapsedMilliseconds);
             stopwatch.Reset();
             return map;
+        }
+
+        public static double[] NoiseMap_simple2d()
+        {
+            throw new NotImplementedException();
+        }
+        public static double[] NoiseMap_simple3d()
+        {
+            throw new NotImplementedException();
+
+        }
+        public static double[] NoiseMap_looped3d()
+        {
+            throw new NotImplementedException();
+
+        }
+        public static double[] NoiseMap_looped4d()
+        {
+            throw new NotImplementedException();
+
+        }
+        public static double[] NoiseMap_domainWarped2D()
+        {
+            throw new NotImplementedException();
+
+        }
+        public static double[] NoiseMap_domainWarped3D()
+        {
+            throw new NotImplementedException();
+
         }
 
         #endregion

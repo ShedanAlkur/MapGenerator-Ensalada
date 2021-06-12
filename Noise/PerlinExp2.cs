@@ -149,7 +149,7 @@ namespace Noise.Perlin
             vector[0] = permutationTable[v & 1023];
             vector[1] = permutationTable[(v * 2) & 1023];
             Normalize2DVector(ref vector);
-            ftx1 = pointInQuadX * vector[0] + pointInQuadY * vector[1];
+              ftx1 = pointInQuadX * vector[0] + pointInQuadY * vector[1];
 
             v = (int)(((left + 1) * magical3) ^ c5 ^ c1);
             vector[0] = permutationTable[v & 1023];

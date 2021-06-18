@@ -40,35 +40,6 @@ namespace PerfomanceTest
         }
 
         [TestMethod]
-        public void FloorComprasion()
-        {
-            const int numberOfTests = 100000;
-            Random rnd = new Random(0);
-            Stopwatch sw = new Stopwatch();
-            double[] array1 = new double[numberOfTests];
-            double[] array2 = new double[numberOfTests];
-            for (int i = 0; i < numberOfTests; i++)
-            {
-                array1[i] = rnd.NextDouble() * 100;
-                array2[i] = array1[i];
-            }
-
-            sw.Restart();
-            for (int i = 0; i < numberOfTests; i++)
-                array1[i] = Math.Floor(array1[i]);
-            sw.Stop();
-            Console.WriteLine($"Округлено с помощью Math.Floor() {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
-
-            sw.Restart();
-            for (int i = 0; i < numberOfTests; i++)
-                array2[i] = (int)array2[i];
-            sw.Stop();
-            Console.WriteLine($"Округлено с помощью (int) {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
-
-            CollectionAssert.AreEquivalent(array1, array2);
-        } // Лучше использовать (int)
-
-        [TestMethod]
         public void Different2DPerlinComprasion()
         {
             const int numberOfTests = 10000 * 10000;

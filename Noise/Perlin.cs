@@ -10,23 +10,15 @@ namespace Noise.Perlin
         private static int left, top, zoom, time, v;
         static int c1, c2, c5;
 
-        private static double ftx1,
-            ftx2,
-            fbx1,
-            fbx2,
-            ztx1,
-            ztx2,
-            zbx1,
-            zbx2;
+        private static double ftx1, ftx2,
+            fbx1, fbx2,
+            ztx1, ztx2,
+            zbx1, zbx2;
 
-        private static double tftx1,
-            tftx2,
-            tfbx1,
-            tfbx2,
-            tztx1,
-            tztx2,
-            tzbx1,
-            tzbx2;
+        private static double tftx1, tftx2,
+            tfbx1, tfbx2,
+            tztx1, tztx2,
+            tzbx1, tzbx2;
 
         private static double pointInQuadX, pointInQuadY, pointInQuadZ, pointInQuadT;
         private static double VectorX, VectorY, VectorZ, VectorT;
@@ -79,8 +71,10 @@ namespace Noise.Perlin
                      */
 
             // Координаты левой верхней вершины квадрата точки.
-            left = (int)fx;
-            top = (int)fy;
+            if (fx < 0 && fx % -1 != 0) left = (int)(fx - 1);
+            else left = (int)fx;
+            if (fy < 0 && fy % -1 != 0) top = (int)(fy - 1);
+            else top = (int)fy;
 
             // Локальные координаты точки внутри квадрата.
             pointInQuadX = fx - left;
@@ -271,21 +265,6 @@ namespace Noise.Perlin
 
         #endregion
 
-        // Что за чудо?
-        /*; RCX = 1
-          ; RDX = 2
-          ; R8 = 3
-          ; R9 = 4
-          ; STACK = 5 -> onwards
-          
-          .code
-          TestMe PROC
-          	add rcx, rdx
-          	mov rax, rcx
-          	ret
-          TestMe ENDP
-          END
-*/
 
         #region 4D
 

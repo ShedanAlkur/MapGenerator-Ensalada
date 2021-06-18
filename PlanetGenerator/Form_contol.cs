@@ -58,11 +58,11 @@ namespace MapGenerator
             ["Тестовый шум C"] = NoiseMapType.testedC,
             ["Тестовый шум D"] = NoiseMapType.testedD,
             ["2D шум"] = NoiseMapType.simple2d,
-            ["domainWarped2D"] = NoiseMapType.domainWarped2D,
             ["3D шум с Z смещением"] = NoiseMapType.simple3d,
             ["3D шум, замкнутый по X"] = NoiseMapType.looped3d,
-            ["domainWarped3D"] = NoiseMapType.domainWarped3D,
             ["4D шум, замкнутый по X и Y"] = NoiseMapType.looped4d,
+            ["domainWarped2D"] = NoiseMapType.domainWarped2D,
+            ["domainWarped3D"] = NoiseMapType.domainWarped3D,
         };
 
         readonly Dictionary<string, ShowedMapType> DictShowedMapType = new Dictionary<string, ShowedMapType>()
@@ -202,14 +202,36 @@ namespace MapGenerator
                 (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
                 (float)num_persistance.Value);
                     break;
-
-
+                case NoiseMapType.simple2d:
+                    NoiseMap = MapGenerator.NoiseMap_simple2d(seed, mapSize,
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+(float)num_persistance.Value);
+                    break;
+                case NoiseMapType.domainWarped2D:
+                    NoiseMap = MapGenerator.NoiseMap_domainWarped2D(seed, mapSize,
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+(float)num_persistance.Value);
+                    break;
+                case NoiseMapType.domainWarped3D:
+                    NoiseMap = MapGenerator.NoiseMap_domainWarped3D(seed, mapSize,
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+(float)num_persistance.Value);
+                    break;
+                case NoiseMapType.simple3d:
+                    NoiseMap = MapGenerator.NoiseMap_simple3d(seed, mapSize,
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (float)num_persistance.Value,(int)num_octaves.Value,
+0.5);
+                    break;
                 case NoiseMapType.looped3d:
-                    NoiseMap = MapGenerator.NoiseMap(seed, mapSize,
+                    NoiseMap = MapGenerator.NoiseMap_looped3d(seed, mapSize,
                 (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
                 (float)num_persistance.Value);
                     break;
-
+                case NoiseMapType.looped4d:
+                    NoiseMap = MapGenerator.NoiseMap_looped4d(seed, mapSize,
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+(float)num_persistance.Value);
+                    break;
                 default: return;
             }
             //todo: поддержка выбора типа шума прямо в контролере

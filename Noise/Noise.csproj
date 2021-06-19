@@ -45,6 +45,7 @@
     <Compile Include="PerlinExp1.cs" />
     <Compile Include="Perlin.cs" />
     <Compile Include="PerlinExp3.cs" />
+    <Compile Include="PerlinFin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -160,7 +160,7 @@ namespace MapGenerator
             this.num_mapSize.Size = new System.Drawing.Size(69, 20);
             this.num_mapSize.TabIndex = 12;
             this.num_mapSize.Value = new decimal(new int[] {
-            100,
+            3,
             0,
             0,
             0});
@@ -203,9 +203,9 @@ namespace MapGenerator
             this.label5.AutoSize = true;
             this.label5.Location = new System.Drawing.Point(6, 98);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(76, 13);
+            this.label5.Size = new System.Drawing.Size(123, 13);
             this.label5.TabIndex = 7;
-            this.label5.Text = "Карта шумов:";
+            this.label5.Text = "Карта шумов Перлина:";
             // 
             // cb_map
             // 
@@ -406,9 +406,9 @@ namespace MapGenerator
             this.label16.AutoSize = true;
             this.label16.Location = new System.Drawing.Point(6, 73);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(72, 13);
+            this.label16.Size = new System.Drawing.Size(92, 13);
             this.label16.TabIndex = 33;
-            this.label16.Text = "Смещение y:";
+            this.label16.Text = "Смещение y (dy):";
             // 
             // num_seed
             // 
@@ -465,9 +465,9 @@ namespace MapGenerator
             this.label14.AutoSize = true;
             this.label14.Location = new System.Drawing.Point(6, 21);
             this.label14.Name = "label14";
-            this.label14.Size = new System.Drawing.Size(110, 13);
+            this.label14.Size = new System.Drawing.Size(133, 13);
             this.label14.TabIndex = 29;
-            this.label14.Text = "Множитель высоты:";
+            this.label14.Text = "Множитель высоты (км):";
             // 
             // num_scale
             // 
@@ -590,9 +590,9 @@ namespace MapGenerator
             this.label10.AutoSize = true;
             this.label10.Location = new System.Drawing.Point(6, 47);
             this.label10.Name = "label10";
-            this.label10.Size = new System.Drawing.Size(72, 13);
+            this.label10.Size = new System.Drawing.Size(92, 13);
             this.label10.TabIndex = 21;
-            this.label10.Text = "Смещение x:";
+            this.label10.Text = "Смещение x (dx):";
             // 
             // groupBox3
             // 
@@ -763,9 +763,9 @@ namespace MapGenerator
             this.label3.AutoSize = true;
             this.label3.Location = new System.Drawing.Point(6, 99);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(193, 13);
+            this.label3.Size = new System.Drawing.Size(15, 13);
             this.label3.TabIndex = 35;
-            this.label3.Text = "Смещение z (если поддерживается):";
+            this.label3.Text = "z:";
             // 
             // groupBox6
             // 

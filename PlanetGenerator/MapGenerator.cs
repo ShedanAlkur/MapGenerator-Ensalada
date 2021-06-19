@@ -45,7 +45,7 @@ namespace MapGenerator
         int octaves = 3, double persistence = 0.5f)
         {
             var map = new double[size * size];
-            var perlin = new PerlinExp1(seed);
+            var perlin = new PerlinFin(seed, octaves, persistence);
             stopwatch.Start();
             for (y = 0; y < size; y++)
             {
@@ -54,15 +54,67 @@ namespace MapGenerator
                 for (x = 0; x < size; x++)
                 {
                     tx = (x + dx) / scale; // x с учетом смещение и приближения карты
-                    map[index] = perlin.Noise(tx, ty, octaves, persistence); // Плоская карта
+                    map[index] = perlin.Noise(tx, ty); // Плоская карта
                     ++index;
                 }
             }
 
-            NormalizeMatrix(ref map, -1, 1); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
             stopwatch.Stop();
             Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedA: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
+        public static double[] NoiseMap_testedB(int seed, int size, double scale, int dx = 0, int dy = 0,
+        int octaves = 3, double persistence = 0.5f)
+        {
+            double octaveScale = (2 - Math.Pow(2, 1 - octaves));
+            var map = new double[size * size];
+            var perlin = new PerlinFin(seed, octaves, persistence);
+            stopwatch.Start();
+            L = size / scale; // Длина окружности, сечения тородида
+            R = L / TAU; // Радиус окружности, сечения тороида
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
+
+
+                    map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty); // Карта цилиндр
+
+                    //if (map[index] < min)
+                    //    min = map[index]; // Сохраняем минимальные и максимальные значения для приведения шумов к [0, 1]
+                    //if (map[index] > max) max = map[index];
+                    ++index;
+                }
+            }
+
+            int dimension = 2;
+            max = 0.5 * Math.Sqrt(dimension);
+            double scaleFactor = 2 * Math.Pow(dimension, -0.5);
+
+            double localMax = double.NegativeInfinity;
+            double localMin = double.PositiveInfinity;
+
+            //for (int i = 0; i < map.Length; i++)
+            //    map[i] *= scaleFactor / octaveScale;
+
+            foreach (var v in map)
+                if (v > localMax) localMax = v;
+                else if (v < localMin) localMin = v;
+
+            Console.WriteLine($"max?={max}; localMax={localMax}; localMin={localMin}");
+
+            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedB: " + stopwatch.ElapsedMilliseconds);
             stopwatch.Reset();
             return map;
         }
@@ -71,7 +123,7 @@ namespace MapGenerator
         int octaves = 3, double persistence = 0.5f)
         {
             var map = new double[size * size];
-            var perlin = new PerlinExp3(seed, 3, octaves);
+            var perlin = new PerlinFin(seed, octaves, persistence);
             stopwatch.Start();
             L = size / scale; // Длина окружности, сечения тородида
             R = L / TAU; // Радиус окружности, сечения тороида
@@ -84,30 +136,35 @@ namespace MapGenerator
                 {
                     tx = (x + dx) / scale; // x с учетом смещение и приближения карты
                     angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
-                    //map[index] = perlin.Noise(tx, ty); // Плоская карта
-                    //map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty); // Карта цилиндр
-                    map[index] = perlin.Noise(tx, ty, persistence); // Карта цилиндр
 
+                    map[index] = perlin.Noise(R * Math.Cos(angle_a), // Карта тороид
+                        R * Math.Sin(angle_a),
+                        R * Math.Sin(angle_b),
+                        R * Math.Cos(angle_b));
+
+                    //if (map[index] < min)
+                    //    min = map[index]; // Сохраняем минимальные и максимальные значения для приведения шумов к [0, 1]
+                    //if (map[index] > max) max = map[index];
                     ++index;
                 }
             }
 
-            int dimension = 2;
-            max = 0.5 * Math.Sqrt(dimension);
-            double scaleFactor = 2 * Math.Pow(dimension, -0.5);
-            double octaveFactor = 2 - Math.Pow(2, 1 - octaves);
+            //int dimension = 2;
+            //max = 0.5 * Math.Sqrt(dimension);
+            //double scaleFactor = 2 * Math.Pow(dimension, -0.5);
+            //double octaveFactor = 2 - Math.Pow(2, 1 - octaves);
 
-            double localMax = double.NegativeInfinity;
-            double localMin = double.PositiveInfinity;
+            //double localMax = double.NegativeInfinity;
+            //double localMin = double.PositiveInfinity;
 
-            for (int i = 0; i < map.Length; i++)
-                map[i] /= octaveFactor;
+            //for (int i = 0; i < map.Length; i++)
+            //    map[i] /= octaveFactor;
 
-            foreach (var v in map)
-                if (v > localMax) localMax = v;
-                else if (v < localMin) localMin = v;
+            //foreach (var v in map)
+            //    if (v > localMax) localMax = v;
+            //    else if (v < localMin) localMin = v;
 
-            Console.WriteLine($"max?={max}; localMax={localMax}; localMin={localMin}");
+            //Console.WriteLine($"max?={max}; localMax={localMax}; localMin={localMin}");
 
             NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
@@ -135,6 +192,23 @@ namespace MapGenerator
                 }
             }
 
+            int dimension = 2;
+            max = 0.5 * Math.Sqrt(dimension);
+            double scaleFactor = 2 * Math.Pow(dimension, -0.5);
+            double octaveFactor = 2 - Math.Pow(2, 1 - octaves);
+
+            double localMax = double.NegativeInfinity;
+            double localMin = double.PositiveInfinity;
+
+            //for (int i = 0; i < map.Length; i++)
+            //    map[i] /= octaveFactor;
+
+            foreach (var v in map)
+                if (v > localMax) localMax = v;
+                else if (v < localMin) localMin = v;
+
+            Console.WriteLine($"max?={max}; localMax={localMax}; localMin={localMin}");
+
             NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
             stopwatch.Stop();
@@ -143,48 +217,7 @@ namespace MapGenerator
             return map;
         }
 
-        public static double[] NoiseMap_testedB(int seed, int size, double scale, int dx = 0, int dy = 0,
-        int octaves = 3, double persistence = 0.5f)
-        {
-            double octaveScale = (2 - Math.Pow(2, 1 - octaves));
-            var map = new double[size * size];
-            var perlin = new PerlinExp2(seed);
-            stopwatch.Start();
-            for (y = 0; y < size; y++)
-            {
-                index = y * size;
-                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
-                for (x = 0; x < size; x++)
-                {
-                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
-                    map[index] = perlin.Noise(tx, ty, octaves, persistence) / octaveScale; // Плоская карта
-                    ++index;
-                }
-            }
 
-            int dimension = 2;
-            max = 0.5 * Math.Sqrt(dimension);
-            double scaleFactor = 2 * Math.Pow(dimension, -0.5);
-
-            double localMax = double.NegativeInfinity;
-            double localMin = double.PositiveInfinity;
-
-            //for (int i = 0; i < map.Length; i++)
-            //    map[i] *= scaleFactor / octaveScale;
-
-            foreach (var v in map)
-                if (v > localMax) localMax = v;
-                else if (v < localMin) localMin = v;
-
-            Console.WriteLine($"max?={max}; localMax={localMax}; localMin={localMin}");
-
-            NormalizeMatrix(ref map, -max, max); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
-
-            stopwatch.Stop();
-            Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedB: " + stopwatch.ElapsedMilliseconds);
-            stopwatch.Reset();
-            return map;
-        }
 
 
         /// <summary>

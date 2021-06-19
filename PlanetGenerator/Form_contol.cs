@@ -503,7 +503,6 @@ namespace MapGenerator
             2000 // M
         };
 
-    #endregion
-
-}
+        #endregion
+    }
 }

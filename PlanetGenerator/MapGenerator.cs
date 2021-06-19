@@ -180,7 +180,7 @@ namespace MapGenerator
         int octaves = 3, double persistence = 0.5f)
         {
             var map = new double[size * size];
-            var perlin = new OldPerlin(seed);
+            var perlin = new PerlinExp2(seed, octaves, persistence);
             stopwatch.Start();
             for (y = 0; y < size; y++)
             {
@@ -189,7 +189,7 @@ namespace MapGenerator
                 for (x = 0; x < size; x++)
                 {
                     tx = (x + dx) / scale; // x с учетом смещение и приближения карты
-                    map[index] = perlin.Noise((float)tx, (float)ty, octaves); // Плоская карта
+                    map[index] = perlin.Noise(tx, ty); // Плоская карта
                     ++index;
                 }
             }
@@ -211,7 +211,7 @@ namespace MapGenerator
 
             Console.WriteLine($"max?={max}; localMax={localMax}; localMin={localMin}");
 
-            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+            NormalizeMatrix(ref map, -1, 1); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
             stopwatch.Stop();
             Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedC: " + stopwatch.ElapsedMilliseconds);
@@ -328,7 +328,7 @@ namespace MapGenerator
         int octaves, double persistence)
         {
             var map = new double[size * size];
-            var perlin = new PerlinFin(seed, octaves, persistence);
+            var perlin = new PerlinMultidimensional(seed, 1, octaves, persistence);
             int halfSize = (int)(size / 2);
             int yValue;
             stopwatch.Start();
@@ -353,7 +353,7 @@ namespace MapGenerator
                 map[(halfSize + halfSize / 2) * size + x] = 0.5;
                 yValue = (int)(perlin.Noise(tx) * halfSize);
                 //Console.WriteLine(perlin.Noise(tx));
-                //if (yValue < 0 || yValue > size) continue;
+                if (yValue <= -halfSize || yValue >= halfSize) continue;
                 map[(halfSize - yValue)*size + x] = 1; // Плоская карта
             }
 

@@ -83,10 +83,7 @@ namespace Noise.Perlin
 
         #region Вспомогательные функции
 
-        public static double Lerp(double x, double a, double b)
-        {
-            return a + x * (b - a);
-        }
+        public static double Lerp(double x, double a, double b) => a + x * (b - a);
 
         public static double CosineInterpolation(double x, double a, double b)
         {
@@ -104,22 +101,13 @@ namespace Noise.Perlin
             return P * x * 3 + Q * x * 2 + R * x + S;
         }
 
-        public static double SmoothStep(double t)
-        {
-            // x^2*(3-2x)
-            return t * t * (3 - 2 * t);
-        }
+        // x^2*(3-2x)
+        public static double SmoothStep(double t) => t * t * (3 - 2 * t);
 
-        public static double SmootherStep(double t)
-        {
-            // 6x^5 - 15x^4 + 10x^3
-            return 6 * t * t * t * t * t - 15 * t * t * t * t + 10 * t * t * t;
-        }
+        // 6x^5 - 15x^4 + 10x^3
+        public static double SmootherStep(double t) => 6 * t * t * t * t * t - 15 * t * t * t * t + 10 * t * t * t;
 
-        public static double QunticCurve(double t)
-        {
-            return t * t * t * (t * (t * 6 - 15) + 10);
-        }
+        public static double QunticCurve(double t) => t * t * t * (t * (t * 6 - 15) + 10);
 
         static void NormalizeVector(ref double[] vector)
         {

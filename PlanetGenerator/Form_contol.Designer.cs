@@ -738,25 +738,27 @@ namespace MapGenerator
             // 
             // num_zd
             // 
+            this.num_zd.DecimalPlaces = 3;
             this.num_zd.Increment = new decimal(new int[] {
-            4,
+            1,
             0,
             0,
-            0});
+            65536});
             this.num_zd.Location = new System.Drawing.Point(287, 97);
             this.num_zd.Maximum = new decimal(new int[] {
-            10000,
+            1000,
             0,
             0,
             0});
             this.num_zd.Minimum = new decimal(new int[] {
-            10000,
+            1000,
             0,
             0,
             -2147483648});
             this.num_zd.Name = "num_zd";
             this.num_zd.Size = new System.Drawing.Size(69, 20);
             this.num_zd.TabIndex = 36;
+            this.num_zd.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
             // 
             // label3
             // 

@@ -57,6 +57,7 @@ namespace MapGenerator
             ["Тестовый шум В"] = NoiseMapType.testedB,
             ["Тестовый шум C"] = NoiseMapType.testedC,
             ["Тестовый шум D"] = NoiseMapType.testedD,
+            ["1D шум"] = NoiseMapType.simple1d,
             ["2D шум"] = NoiseMapType.simple2d,
             ["3D шум с Z смещением"] = NoiseMapType.simple3d,
             ["3D шум, замкнутый по X"] = NoiseMapType.looped3d,
@@ -202,6 +203,11 @@ namespace MapGenerator
                 (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
                 (float)num_persistance.Value);
                     break;
+                case NoiseMapType.simple1d:
+                    NoiseMap = MapGenerator.NoiseMap_simple1d(seed, mapSize,
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+(float)num_persistance.Value);
+                    break;
                 case NoiseMapType.simple2d:
                     NoiseMap = MapGenerator.NoiseMap_simple2d(seed, mapSize,
 (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
@@ -219,7 +225,7 @@ namespace MapGenerator
                     break;
                 case NoiseMapType.simple3d:
                     NoiseMap = MapGenerator.NoiseMap_simple3d(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (float)num_persistance.Value,(int)num_octaves.Value,
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (float)num_zd.Value,(int)num_octaves.Value,
 0.5);
                     break;
                 case NoiseMapType.looped3d:

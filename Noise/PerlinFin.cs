@@ -42,7 +42,7 @@ namespace Noise.Perlin
             set
             {
                 octave = value;
-                octaveFactor = Math.Pow(persistence, octave - 1);
+                octaveFactor = 2 - Math.Pow(persistence, octave - 1);
             }
         }
         public double persistence;
@@ -51,11 +51,11 @@ namespace Noise.Perlin
             get => persistence; set
             {
                 persistence = value;
-                octaveFactor = Math.Pow(persistence, octave - 1);
+                octaveFactor = 2 - Math.Pow(persistence, octave - 1);
             }
         }
 
-        static readonly double max2dNoiseValue = 0.5*Math.Sqrt(2);
+        static readonly double max2dNoiseValue = 0.5 * Math.Sqrt(2);
         static readonly double max3dNoiseValue = 0.5 * Math.Sqrt(3);
         static readonly double max4dNoiseValue = 0.5 * Math.Sqrt(4);
         double octaveFactor;
@@ -99,7 +99,6 @@ namespace Noise.Perlin
             amplitude = 1;
             for (k = 0; k <= octave; k++)
             {
-
                 // Координаты левой верхней вершины квадрата, в между узлов которого списана точка.
                 if (fx < 0 && fx % -1 != 0) left = (int)(fx - 1);
                 else left = (int)fx;
@@ -114,7 +113,6 @@ namespace Noise.Perlin
 
                 v = (int)(((left + 1) * magical3));
                 ftx2 = permutationTable[v & 1023];
-
                 // y = 2(a-b)x^4 - (3a-5b)x^3 - 3bx^2 + ax
                 res += (2 * (ftx1 - ftx2) * pointInQuadX * pointInQuadX * pointInQuadX * pointInQuadX
                     - (3 * ftx1 - 5 * ftx2) * pointInQuadX * pointInQuadX * pointInQuadX

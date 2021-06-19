@@ -160,7 +160,7 @@ namespace MapGenerator
             this.num_mapSize.Size = new System.Drawing.Size(69, 20);
             this.num_mapSize.TabIndex = 12;
             this.num_mapSize.Value = new decimal(new int[] {
-            3,
+            100,
             0,
             0,
             0});

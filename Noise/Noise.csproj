@@ -40,12 +40,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OldPerlin.cs" />
     <Compile Include="PerlinFinNormalized.cs" />
-    <Compile Include="PerlinExp2.cs" />
     <Compile Include="PerlinMultidimensional.cs" />
-    <Compile Include="Perlin.cs" />
-    <Compile Include="PerlinExp3.cs" />
     <Compile Include="PerlinFin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

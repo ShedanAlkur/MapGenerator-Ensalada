@@ -62,10 +62,10 @@ namespace MapGenerator
 
         readonly Dictionary<string, NoiseMapType> DictNoiseMapType = new Dictionary<string, NoiseMapType>()
         {
-            ["Тестовый шум А"] = NoiseMapType.testedA,
-            ["Тестовый шум В"] = NoiseMapType.testedB,
-            ["Тестовый шум C"] = NoiseMapType.testedC,
-            ["Тестовый шум D"] = NoiseMapType.testedD,
+            //["Тестовый шум А"] = NoiseMapType.testedA,
+            //["Тестовый шум В"] = NoiseMapType.testedB,
+            //["Тестовый шум C"] = NoiseMapType.testedC,
+            //["Тестовый шум D"] = NoiseMapType.testedD,
             ["1D шум"] = NoiseMapType.simple1d,
             ["2D шум"] = NoiseMapType.simple2d,
             ["3D шум с Z смещением"] = NoiseMapType.simple3d,
@@ -88,20 +88,15 @@ namespace MapGenerator
             form_grid = new Form_grid();
             form_grid.Show(this);
 
-            //mapSize = 300;
-            //num_mapSize.Value = mapSize; // Размер карты
             mapSize = (int)num_mapSize.Value;
-            num_temp.Value = 26; // Температура на экваторе
-
             ResetMapFlags();
-
             NoiseMap = new double[mapSize * mapSize];
             HeightMap = new int[mapSize * mapSize];
             BaseTemperatureMap = new int[mapSize * mapSize];
             ModeTemperatureMap = new int[mapSize * mapSize];
 
             foreach (string key in DictNoiseMapType.Keys) cb_noise.Items.Add(key);
-            cb_noise.SelectedIndex = 0;
+            cb_noise.SelectedIndex = 1;
             foreach (string key in DictShowedMapType.Keys) cb_map.Items.Add(key);
             cb_map.SelectedIndex = 0;
 
@@ -187,73 +182,48 @@ namespace MapGenerator
             if (NoiseMapIsReady) return;
             switch (noiseMapType)
             {
-                case NoiseMapType.testedA:
-                    NoiseMap = MapGenerator.NoiseMap_testedA(seed, mapSize,
-                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-                (float)num_persistance.Value);
-                    break;
 
-                case NoiseMapType.testedB:
-                    NoiseMap = MapGenerator.NoiseMap_testedB(seed, mapSize,
-                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-                (float)num_persistance.Value);
-                    break;
-
-                case NoiseMapType.testedC:
-                    NoiseMap = MapGenerator.NoiseMap_testedC(seed, mapSize,
-                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-                (float)num_persistance.Value);
-                    break;
-
-                case NoiseMapType.testedD:
-                    NoiseMap = MapGenerator.NoiseMap_testedD(seed, mapSize,
-                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-                (float)num_persistance.Value);
-                    break;
                 case NoiseMapType.simple1d:
                     NoiseMap = MapGenerator.NoiseMap_simple1d(seed, mapSize,
-(float)num_scale.Value, (int)num_yd.Value, (int)num_octaves.Value,
-(float)num_persistance.Value);
+                    (double)num_scale.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                    (double)num_persistance.Value);
                     break;
                 case NoiseMapType.simple2d:
                     NoiseMap = MapGenerator.NoiseMap_simple2d(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-(float)num_persistance.Value);
+                    (double)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                    (double)num_persistance.Value);
                     break;
                 case NoiseMapType.domainWarped2d:
                     NoiseMap = MapGenerator.NoiseMap_domainWarped2D(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, 
-(double)num_mode.Value, (double)num_dw11.Value, (double)num_dw12.Value, (double)num_dw21.Value, (double)num_dw22.Value,
-(int)num_octaves.Value, (float)num_persistance.Value);
+                    (double)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, 
+                    (double)num_mode.Value, (double)num_dw11.Value, (double)num_dw12.Value, (double)num_dw21.Value, (double)num_dw22.Value,
+                    (int)num_octaves.Value, (float)num_persistance.Value);
                     break;
                 case NoiseMapType.domainWarped3d:
                     NoiseMap = MapGenerator.NoiseMap_domainWarped3D(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value,
-(double)num_mode.Value, (double)num_dw11.Value, (double)num_dw12.Value, (double)num_dw13.Value,
-(double)num_dw21.Value, (double)num_dw22.Value, (double)num_dw23.Value,
-(double)num_dw31.Value, (double)num_dw32.Value, (double)num_dw33.Value,
-(int)num_octaves.Value, (float)num_persistance.Value);
+                    (double)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value,
+                    (double)num_mode.Value, (double)num_dw11.Value, (double)num_dw12.Value, (double)num_dw13.Value,
+                    (double)num_dw21.Value, (double)num_dw22.Value, (double)num_dw23.Value,
+                    (double)num_dw31.Value, (double)num_dw32.Value, (double)num_dw33.Value,
+                    (int)num_octaves.Value, (double)num_persistance.Value);
                     break;
                 case NoiseMapType.simple3d:
                     NoiseMap = MapGenerator.NoiseMap_simple3d(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (float)num_zd.Value,(int)num_octaves.Value,
-0.5);
+                    (double)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (float)num_zd.Value,(int)num_octaves.Value, (double)num_persistance.Value);
                     break;
                 case NoiseMapType.looped3d:
                     NoiseMap = MapGenerator.NoiseMap_looped3d(seed, mapSize,
-                (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-                (float)num_persistance.Value);
+                    (double)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                    (double)num_persistance.Value);
                     break;
                 case NoiseMapType.looped4d:
                     NoiseMap = MapGenerator.NoiseMap_looped4d(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-(float)num_persistance.Value);
+                    (double)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                    (double)num_persistance.Value);
                     break;
                 default: return;
             }
-
             NoiseMapIsReady = true;
-
         }
         void PrepareHeightMap()
         {
@@ -547,17 +517,6 @@ namespace MapGenerator
             [2000] = Color.FromArgb(159, 222, 237),
             [3000] = Color.FromArgb(87, 164, 210),
             [5000] = Color.FromArgb(73, 50, 166)
-        };
-
-        private readonly List<int> StarTemperature = new List<int>
-        {
-            30000, // O
-            10000, // B
-            7500, // A
-            6000, // F
-            5000, // G
-            3500, // K
-            2000 // M
         };
 
         #endregion

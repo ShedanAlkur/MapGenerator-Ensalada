@@ -3,9 +3,9 @@
 namespace Noise.Perlin
 {
     /// <summary>
-    ///     Класс для генерации шума Перлина в 2D,3D пространстве.
+    /// Класс для генерации шума Перлина в большоем диапазоне измерений.
     /// </summary>
-    public class PerlinExp1
+    public class PerlinMultidimensional
     {
         int v;
         int[] magical;
@@ -13,7 +13,6 @@ namespace Noise.Perlin
         double[] dotProduct;
         double[] pointInQuad;
         double[] tempVector;
-
 
         double res;
         readonly double[] permutationTable;
@@ -68,7 +67,7 @@ namespace Noise.Perlin
         private int k, j, dotFindingStep;
         private double amplitude;
 
-        public PerlinExp1(int seed, int dimension, int octave, double persistence = 0.5)
+        public PerlinMultidimensional(int seed, int dimension, int octave, double persistence = 0.5)
         {
             this.seed = seed;
             this.Dimension = dimension;
@@ -163,7 +162,7 @@ namespace Noise.Perlin
                         v = v ^ ((((j >> i) & 0b1) == 0 ? vertex[i] : vertex[i] + 1) * magical[i + 1]);
                     // Градиентный единичный вектор
                     for (int i = 0; i < dimension; i++)
-                        tempVector[i] = permutationTable[(v * i) & 1023];
+                        tempVector[i] = permutationTable[(v * (i + 1)) & 1023];
                     NormalizeVector(ref tempVector);
                     // Скалярные произведения в вершинах
                     dotProduct[j] = 0;

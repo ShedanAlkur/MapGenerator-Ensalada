@@ -45,7 +45,7 @@ namespace MapGenerator
         int octaves = 3, double persistence = 0.5f)
         {
             var map = new double[size * size];
-            var perlin = new PerlinExp1(seed, 2, octaves, persistence);
+            var perlin = new PerlinMultidimensional(seed, 2, octaves, persistence);
             stopwatch.Start();
             for (y = 0; y < size; y++)
             {
@@ -72,7 +72,7 @@ namespace MapGenerator
         {
             double octaveScale = (2 - Math.Pow(2, 1 - octaves));
             var map = new double[size * size];
-            var perlin = new PerlinExp1(seed, 3, octaves, persistence);
+            var perlin = new PerlinMultidimensional(seed, 3, octaves, persistence);
             stopwatch.Start();
             L = size / scale; // Длина окружности, сечения тородида
             R = L / TAU; // Радиус окружности, сечения тороида
@@ -125,7 +125,7 @@ namespace MapGenerator
         int octaves = 3, double persistence = 0.5f)
         {
             var map = new double[size * size];
-            var perlin = new PerlinExp1(seed, 4, octaves, persistence);
+            var perlin = new PerlinMultidimensional(seed, 4, octaves, persistence);
             stopwatch.Start();
             L = size / scale; // Длина окружности, сечения тородида
             R = L / TAU; // Радиус окружности, сечения тороида

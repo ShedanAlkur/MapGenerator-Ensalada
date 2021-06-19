@@ -44,7 +44,7 @@ namespace PerfomanceTest
         {
             const int numberOfTests = 10000 * 10000;
             Perlin perlin1 = new Perlin(0);
-            PerlinExp1 perlin2 = new PerlinExp1(0);
+            PerlinMultidimensional perlin2 = new PerlinExp1(0);
             Stopwatch sw = new Stopwatch();
             string res;
 

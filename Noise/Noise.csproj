@@ -42,7 +42,7 @@
   <ItemGroup>
     <Compile Include="PerlinFinNormalized.cs" />
     <Compile Include="PerlinMultidimensional.cs" />
-    <Compile Include="PerlinFin.cs" />
+    <Compile Include="Perlin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

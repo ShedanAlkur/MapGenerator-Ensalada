@@ -8,7 +8,7 @@ namespace Noise.Perlin
     /// <summary>
     /// Класс для генерации процедурного шума Перлина в одно-, дву-, трех- и четырехмерном пространстве.
     /// </summary>
-    public class PerlinFin 
+    public class Perlin 
     {
         int left, top, zoom, time, v;
 
@@ -69,7 +69,7 @@ namespace Noise.Perlin
         /// <param name="seed">Семя генерации шума.</param>
         /// <param name="octave">Количество октав, которое рассчитывается для шума в каждой точке.</param>
         /// <param name="persistence">Устойчивость к наложению октав. Больше величина - сильнее влияние октав.</param>
-        public PerlinFin(int seed, int octave, double persistence = 0.5)
+        public Perlin(int seed, int octave, double persistence = 0.5)
         {
             this.seed = seed;
             this.Octave = octave;

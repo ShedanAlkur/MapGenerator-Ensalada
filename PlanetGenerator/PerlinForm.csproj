@@ -75,6 +75,12 @@
     <Compile Include="Form_grid.Designer.cs">
       <DependentUpon>Form_grid.cs</DependentUpon>
     </Compile>
+    <Compile Include="Form_info.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Form_info.Designer.cs">
+      <DependentUpon>Form_info.cs</DependentUpon>
+    </Compile>
     <Compile Include="MapGenerator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -83,6 +89,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Form_grid.resx">
       <DependentUpon>Form_grid.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Form_info.resx">
+      <DependentUpon>Form_info.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

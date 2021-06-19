@@ -1,41 +1,250 @@
-﻿using System;
+﻿using Noise.Perlin;
+using System;
 using System.Diagnostics;
 
 namespace MapGenerator
 {
     /// <summary>
-    ///     Класс генерации карт шумов, высот, температур, осадков и всего такого прочего.
+    /// Типы генерируемых карт шумов Перлина.
+    /// </summary>
+    public enum NoiseMapType
+    {
+        //testedA,
+        //testedB,
+        //testedC,
+        //testedD,
+        simple1d,
+        simple2d,
+        domainWarped2d,
+        domainWarped3d,
+        simple3d,
+        looped3d,
+        looped4d,
+    }
+
+    /// <summary>
+    /// Типы визуализируемых карт.
+    /// </summary>
+    public enum ShowedMapType
+    {
+        Noise,
+        Landscape,
+        BaseTemperature,
+        ModeTemperature,
+    }
+
+    /// <summary>
+    /// Класс генерации карт шумов, высот, температур.
     /// </summary>
     public static class MapGenerator
     {
-        public const double TAU = 2 * Math.PI;
+        const double TAU = 2 * Math.PI;
 
-        private const double scale = 20;
-        private static readonly Stopwatch stopwatch = new Stopwatch();
-        private static double min, max, r;
-        private static double tx, ty, L, R;
-        private static double angle_a, angle_b;
-        private static int x, y, index;
+        static readonly Stopwatch stopwatch = new Stopwatch();
+        static double min, max;
+        static double tx, ty, L, R;
+        static double angle_a, angle_b;
+        static int x, y, index;
+
+        #region Генерация карт шумов
 
         /// <summary>
-        ///     Функция генерирует цикличную карту шумов в диапазоне значений [0, 1].
+        /// Метод генерации карты для визуализации одномерных шумов Перлина.
         /// </summary>
-        /// <param name="seed">Семя генерации карты шумов.</param>
-        /// <param name="size">Размер карты.</param>
-        /// <param name="scale">Масштаб карты.</param>
-        /// <param name="dx">Смещение карты на значение dx.</param>
-        /// <param name="dy">Смещение карты на значение dy.</param>
-        /// <param name="octaves">Увеличение количества деталей и неровностей на карте.</param>
-        /// <param name="persistence">Устойчивость к шуму.</param>
-        /// <returns>Карта шумов.</returns>
-        public static double[] GenerateNoiseMap(int seed, int size, double scale, int dx = 0, int dy = 0,
-            int octaves = 3,
-            double persistence = 0.5f)
+        /// <param name="seed">Семя генерации.</param>
+        /// <param name="size">Длина и ширина карты.</param>
+        /// <param name="scale">Показатель приближения.</param>
+        /// <param name="dx">Смещение от начала координат по оси oX.</param>
+        /// <param name="octaves">Количество октав.</param>
+        /// <param name="persistence">Устойчивость к наложению октав.</param>
+        /// <returns>Карта одномерного шумов Перлина для визуализации.</returns>
+        public static double[] NoiseMap_simple1d(int seed, int size, double scale, int dx,
+        int octaves, double persistence)
         {
-            //min = 2;
-            //max = -2;
             var map = new double[size * size];
-            var perlin = new Perlin(seed);
+            var perlin = new Perlin(seed, octaves, persistence);
+            int halfSize = (int)(size / 2);
+            int yValue;
+            stopwatch.Start();
+            double yLinesNumber = (size / scale) + 1;
+            if (yLinesNumber % 0 > 0) yLinesNumber++;
+            int xValue = -(int)(((dx / scale) - Math.Floor(dx / scale)) * scale);
+            for (int i = 0; i < yLinesNumber; i++)
+            {
+                Console.WriteLine(xValue);
+                if (xValue < size && xValue >= 0)
+                    for (y = 0; y < size; y++)
+                        map[y * size + xValue] = 0.5;
+                xValue += (int)scale;
+            }
+            for (x = 0; x < size; x++)
+            {
+                tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                map[halfSize * size + x] = 0.5;
+                map[(halfSize - halfSize / 2) * size + x] = 0.25;
+                map[(halfSize + halfSize / 2) * size + x] = 0.5;
+                yValue = (int)(perlin.Noise(tx) * halfSize);
+                //Console.WriteLine(perlin.Noise(tx));
+                if (yValue <= -halfSize || yValue >= halfSize) continue;
+                map[(halfSize - yValue)*size + x] = 1; // Плоская карта
+            }
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию карты шумов: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
+        /// <summary>
+        /// Метод генерации карты шумов перлина в двумерном пространстве.
+        /// </summary>
+        /// <param name="seed">Семя генерации.</param>
+        /// <param name="size">Длина и ширина карты.</param>
+        /// <param name="scale">Показатель приближения.</param>
+        /// <param name="dx">Смещение от начала координат по оси oX.</param>
+        /// <param name="dy">Смещение от начала координат по оси oY.</param>
+        /// <param name="octaves">Количество октав.</param>
+        /// <param name="persistence">Устойчивость к наложению октав.</param>
+        /// <returns>Карта двумерного шумов Перлина.</returns>
+        public static double[] NoiseMap_simple2d(int seed, int size, double scale, int dx, int dy,
+        int octaves, double persistence)
+        {
+            var map = new double[size * size];
+            var perlin = new Perlin(seed, octaves, persistence);
+            stopwatch.Start();
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    map[index] = perlin.Noise(tx, ty); // Плоская карта
+                    ++index;
+                }
+            }
+
+            double localMax = double.NegativeInfinity;
+            double localMin = double.PositiveInfinity;
+            foreach (var v in map)
+                if (v > localMax) localMax = v;
+                else if (v < localMin) localMin = v;
+            Console.WriteLine($"max={max}; localMax={localMax}; localMin={localMin}");
+
+            NormalizeMatrix(ref map);
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию карты шумов: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
+        /// <summary>
+        /// Метод генерации двумерной карты шумов перлина в трехмерном пространстве.
+        /// </summary>
+        /// <param name="seed">Семя генерации.</param>
+        /// <param name="size">Длина и ширина карты.</param>
+        /// <param name="scale">Показатель приближения.</param>
+        /// <param name="dx">Смещение от начала координат по оси oX.</param>
+        /// <param name="dy">Смещение от начала координат по оси oY.</param>
+        /// <param name="z">Координата, по которой берется двумерный срез шума..</param>
+        /// <param name="octaves">Количество октав.</param>
+        /// <param name="persistence">Устойчивость к наложению октав.</param>
+        /// <returns>Карта шумов Перлина.</returns>
+        public static double[] NoiseMap_simple3d(int seed, int size, double scale, int dx, int dy, float z,
+        int octaves, double persistence)
+        {
+            var map = new double[size * size];
+            var perlin = new Perlin(seed, octaves, persistence);
+            stopwatch.Start();
+            L = size / scale; // Длина окружности, сечения тородида
+            R = L / TAU; // Радиус окружности, сечения тороида
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    map[index] = perlin.Noise(tx, ty, z); // Карта цилиндр
+                    ++index;
+                }
+            }
+
+            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию карты шумов: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
+        /// <summary>
+        /// Метод генерации двумерной карты шумов перлина, замкнутой по оси oX.
+        /// </summary>
+        /// <param name="seed">Семя генерации.</param>
+        /// <param name="size">Длина и ширина карты.</param>
+        /// <param name="scale">Показатель приближения.</param>
+        /// <param name="dx">Смещение от начала координат по оси oX.</param>
+        /// <param name="dy">Смещение от начала координат по оси oY.</param>
+        /// <param name="octaves">Количество октав.</param>
+        /// <param name="persistence">Устойчивость к наложению октав.</param>
+        /// <returns>Карта шумов Перлина.</returns>
+        public static double[] NoiseMap_looped3d(int seed, int size, double scale, int dx, int dy,
+        int octaves, double persistence)
+        {
+            var map = new double[size * size];
+            var perlin = new Perlin(seed, octaves, persistence);
+            stopwatch.Start();
+            L = size / scale; // Длина окружности, сечения тородида
+            R = L / TAU; // Радиус окружности, сечения тороида
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
+                    map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty); // Карта цилиндр
+                    ++index;
+                }
+            }
+
+
+            double localMax = double.NegativeInfinity;
+            double localMin = double.PositiveInfinity;
+
+            foreach (var v in map)
+                if (v > localMax) localMax = v;
+                else if (v < localMin) localMin = v;
+
+            Console.WriteLine($"max={max}; localMax={localMax}; localMin={localMin}");
+
+            NormalizeMatrix(ref map);
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию карты шумов: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
+        /// <summary>
+        /// Метод генерации двумерной карты шумов перлина, замкнутой по осям oX и oY.
+        /// </summary>
+        /// <param name="seed">Семя генерации.</param>
+        /// <param name="size">Длина и ширина карты.</param>
+        /// <param name="scale">Показатель приближения.</param>
+        /// <param name="dx">Смещение от начала координат по оси oX.</param>
+        /// <param name="dy">Смещение от начала координат по оси oY.</param>
+        /// <param name="octaves">Количество октав.</param>
+        /// <param name="persistence">Устойчивость к наложению октав.</param>
+        /// <returns>Карта шумов Перлина.</returns>
+        public static double[] NoiseMap_looped4d(int seed, int size, double scale, int dx, int dy,
+        int octaves, double persistence)
+        {
+            var map = new double[size * size];
+            var perlin = new Perlin(seed, octaves, persistence);
             stopwatch.Start();
             L = size / scale; // Длина окружности, сечения тородида
             R = L / TAU; // Радиус окружности, сечения тороида
@@ -48,168 +257,194 @@ namespace MapGenerator
                 {
                     tx = (x + dx) / scale; // x с учетом смещение и приближения карты
                     angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
-
-                    //map[index] = perlin.Noise(tx, ty, octaves, persistence); // Плоская карта
-
-                    //map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty, octaves, persistence); // Карта цилиндр
-
                     map[index] = perlin.Noise(R * Math.Cos(angle_a), // Карта тороид
                         R * Math.Sin(angle_a),
                         R * Math.Sin(angle_b),
-                        R * Math.Cos(angle_b),
-                        octaves, persistence);
-
-                    if (map[index] < min)
-                        min = map[index]; // Сохраняем минимальные и максимальные значения для приведения шумов к [0, 1]
-                    if (map[index] > max) max = map[index];
+                        R * Math.Cos(angle_b));
                     ++index;
                 }
             }
 
-            //Console.WriteLine($"min {min}; max {max}");
-            //min = -1;
-            //max = 1;
-            r = max - min; // Генерируем карту шумов, сводя её от диапазона [-1; +1] (почти) к [0; 1]
-            for (y = 0; y < size; y++)
-            {
-                index = y * size;
-                for (x = 0; x < size; x++)
-                {
-                    index = x + y * size;
-                    map[index] = (map[index] - min) / r;
-                    ++index;
-                }
-            }
+
+            double localMax = double.NegativeInfinity;
+            double localMin = double.PositiveInfinity;
+
+            foreach (var v in map)
+                if (v > localMax) localMax = v;
+                else if (v < localMin) localMin = v;
+
+            Console.WriteLine($"max={max}; localMax={localMax}; localMin={localMin}");
+
+            NormalizeMatrix(ref map);
 
             stopwatch.Stop();
-            Console.WriteLine("Суммарное время, ушедшее на генерацию карт шумов: " + stopwatch.ElapsedMilliseconds);
-            //stopwatch.Reset();
+            Console.WriteLine("Время, ушедшее на генерацию карты шумов: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
             return map;
         }
 
         /// <summary>
-        ///     Функция генерирует цикличную карту высот по заданным параметрам.
+        /// Метод генерации карты шумов перлина в двумерном пространстве с применение деформации по областям (domain warping).
+        /// </summary>
+        /// <param name="seed">Семя генерации.</param>
+        /// <param name="size">Длина и ширина карты.</param>
+        /// <param name="scale">Показатель приближения.</param>
+        /// <param name="dx">Смещение от начала координат по оси oX.</param>
+        /// <param name="dy">Смещение от начала координат по оси oY.</param>
+        /// <param name="mode"></param>
+        /// <param name="octaves">Количество октав.</param>
+        /// <param name="persistence">Устойчивость к наложению октав.</param>
+        /// <returns>Карта двумерного шумов Перлина.</returns>
+        public static double[] NoiseMap_domainWarped2D(int seed, int size, double scale, int dx, int dy,
+        double mode,
+        double domWaprParam11, double domWaprParam12,
+        double domWaprParam21, double domWaprParam22,
+        int octaves, double persistence)
+        {
+            var map = new double[size * size];
+            var perlin = new Perlin(seed, octaves, persistence);
+            stopwatch.Start();
+            L = size / scale; // Длина окружности, сечения тородида
+            R = L / TAU; // Радиус окружности, сечения тороида
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                angle_b = TAU * ty / L; // Текущий угол поворота от координаты y
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
+                    double xq = perlin.Noise(tx + domWaprParam11, ty + domWaprParam12);
+                    double yq = perlin.Noise(tx + domWaprParam21, ty + domWaprParam22);
+                    map[index] = perlin.Noise(tx + mode * xq, ty + mode * yq); // Плоская карта с домэин деформрмэтион
+                    ++index;
+                }
+            }
+
+            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию карты шумов: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
+        /// <summary>
+        /// Метод генерации карты шумов перлина в двумерном пространстве, замкнутой по оси oX,
+        /// с применение деформации по областям (domain warping).
+        /// </summary>
+        /// <param name="seed">Семя генерации.</param>
+        /// <param name="size">Длина и ширина карты.</param>
+        /// <param name="scale">Показатель приближения.</param>
+        /// <param name="dx">Смещение от начала координат по оси oX.</param>
+        /// <param name="dy">Смещение от начала координат по оси oY.</param>
+        /// <param name="mode"></param>
+        /// <param name="octaves"></param>
+        /// <param name="persistence"></param>
+        /// <returns></returns>
+        public static double[] NoiseMap_domainWarped3D(int seed, int size, double scale, int dx, int dy,
+        double mode,
+        double domWaprParam11, double domWaprParam12, double domWaprParam13,
+        double domWaprParam21, double domWaprParam22, double domWaprParam23,
+        double domWaprParam31, double domWaprParam32, double domWaprParam33,
+        int octaves, double persistence)
+        {
+            var map = new double[size * size];
+            var perlin = new Perlin(seed, octaves, persistence);
+            stopwatch.Start();
+            L = size / scale; // Длина окружности, сечения тородида
+            R = L / TAU; // Радиус окружности, сечения тороида
+            for (y = 0; y < size; y++)
+            {
+                index = y * size;
+                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                for (x = 0; x < size; x++)
+                {
+                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
+                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
+
+                    double rx = R * Math.Cos(angle_a);
+                    double ry = R * Math.Sin(angle_a);
+                    double xq = perlin.Noise(rx + domWaprParam11, ry + domWaprParam12, ty + domWaprParam13);
+                    double yq = perlin.Noise(rx + domWaprParam21, ry + domWaprParam22, ty + domWaprParam23);
+                    double zq = perlin.Noise(rx + domWaprParam31, ry + domWaprParam32, ty + domWaprParam33);
+                    map[index] = perlin.Noise(rx + mode * xq, ry + mode * yq, ty + mode * zq); // Карта цилиндр с домэин деформрмэтион
+                    index++;
+                }
+            }
+
+            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+
+            stopwatch.Stop();
+            Console.WriteLine("Время, ушедшее на генерацию карты шумов: " + stopwatch.ElapsedMilliseconds);
+            stopwatch.Reset();
+            return map;
+        }
+
+        #endregion
+
+        /// <summary>
+        /// Функция нормализации массива величин от начального минимума и максимума к [0; 1].
+        /// </summary>
+        /// <param name="matrix">Нормализуемый массив.</param>
+        public static void NormalizeMatrix(ref double[] matrix)
+        {
+            double min = double.PositiveInfinity;
+            double max = double.NegativeInfinity;
+            foreach (var v in matrix)
+            {
+                if (v < min) min = v;
+                if (v > max) max = v;
+            }
+            NormalizeMatrix(ref matrix, min, max);
+        }
+        /// <summary>
+        /// Функция нормализации массива величин от заданных величин к [0; 1].
+        /// </summary>
+        /// <param name="matrix">Нормализуемый массив</param>
+        /// <param name="min">Минимальное значение массива.</param>
+        /// <param name="max">Максимальное значение массива</param>
+        public static void NormalizeMatrix(ref double[] matrix, double min, double max)
+        {
+            double d = max - min;
+            for (int i = 0; i < matrix.Length; i++)
+                matrix[i] = (matrix[i] - min) / d;
+        }
+
+        /// <summary>
+        ///     Функция генерирует карту высот по заданным параметрам.
         /// </summary>
         /// <param name="noiseMap">Карту шумов, на основе которой генерируется карта высот.</param>
         /// <param name="multiplier">Множитель высоты.</param>
         /// <param name="oceanLevel">Уровень океана.</param>
         /// <param name="extraborder">
-        ///     Граница дополнительного изменения высоты. Значения выше границы будут увеличиваться, ниже -
-        ///     уменьшаться.
+        ///     Граница дополнительного изменения высоты. Значения выше границы будут увеличиваться, ниже - уменьшаться.
         /// </param>
         /// <param name="extraParam">Параметр дополнительного изменения высота.</param>
         /// <returns>Карты высот.</returns>
-        public static int[] GenerateHeightMap(double[] noiseMap, int multiplier, int oceanLevel, int extraborder,
+        public static int[] HeightMap(double[] noiseMap, int multiplier, int oceanLevel, int extraborder,
             double extraParam)
         {
             var heightMap = new int[noiseMap.Length];
-            var size = (int) Math.Sqrt(noiseMap.Length);
-            for (var y = 0; y < size; y++)
+            for (var index = 0; index < noiseMap.Length; index++)
             {
-                index = y * size;
-                for (var x = 0; x < size; x++)
+                heightMap[index] =
+                    (int)(noiseMap[index] * multiplier -
+                           oceanLevel); // Определяем высоту от шума и уменьшаем всю высоту на уровень океана.
+                if (extraParam != 0)
                 {
-                    heightMap[index] =
-                        (int) (noiseMap[index] * multiplier -
-                               oceanLevel); // Определяем высоту от шума и уменьшаем всю высоту на уровень океана.
                     if (Math.Abs(heightMap[index]) >= extraborder)
                         heightMap[index] =
-                            (int) (heightMap[index] *
+                            (int)(heightMap[index] *
                                    Math.Pow(1.2, extraParam)); // Увеличиваем значения выше extraborder.
                     else
                         heightMap[index] =
-                            (int) (heightMap[index] /
+                            (int)(heightMap[index] /
                                    Math.Pow(1.1, extraParam)); // Уменьшаем значения ниже extraborder.
-                    ++index;
                 }
             }
-
             return heightMap;
-        }
-
-        /// <summary>
-        ///     Функция генерирует цикличную карту высот по заданным параметрам.
-        /// </summary>
-        /// <param name="seed">Семя генерации карты высот.</param>
-        /// <param name="size">Размер карты.</param>
-        /// <param name="scale">Масштаб карты.</param>
-        /// <param name="multiplier">Множитель высоты.</param>
-        /// <param name="oceanLevel">Уровень океана.</param>
-        /// <param name="extraborder">
-        ///     Граница дополнительного изменения высоты. Значения выше границы будут увеличиваться, ниже -
-        ///     уменьшаться.
-        /// </param>
-        /// <param name="extraParam">Параметр дополнительного изменения высота.</param>
-        /// <returns>Карты высот.</returns>
-        public static int[] GenerateHeightMap(int seed, int size, double scale, int multiplier, int oceanLevel,
-            int extraborder = 0, double extraParam = 0)
-        {
-            return GenerateHeightMap(GenerateNoiseMap(seed, size, scale), multiplier, oceanLevel, extraborder,
-                extraParam);
-        }
-
-        /// <summary>
-        ///     Функция генерирует цикличную карту с диапазоном значений [0, multiplier].
-        /// </summary>
-        /// <param name="seed">Семя генерации карты.</param>
-        /// <param name="size">Размер карты.</param>
-        /// <param name="scale">Масштаб карты.</param>
-        /// <param name="multiplier">Множитель.</param>
-        /// <returns>Карта с диапазоном значений [0, multiplier].</returns>
-        public static int[] GenerateMap(int seed, int size, double scale, int multiplier)
-        {
-            var noiseMap = GenerateNoiseMap(seed, size, scale, 0, 0, 1);
-            var map = new int[size * size];
-            for (var y = 0; y < size; y++)
-            {
-                index = y * size;
-                for (var x = 0; x < size; x++)
-                {
-                    map[index] = (int) (noiseMap[index] * multiplier);
-                    ++index;
-                }
-            }
-
-            return map;
-        }
-
-        /// <summary>
-        ///     Функция генерирует цикличную карту ресура с диапазоном значений [0, multiplier], учитывая характер ресурса.
-        /// </summary>
-        /// <param name="seed">Семя генерации карты.</param>
-        /// <param name="size">Размер карты.</param>
-        /// <param name="scale">Масштаб карты.</param>
-        /// <param name="multiplier">Множитель.</param>
-        /// <param name="resourceType">Характер ресурса. 0 - повсеместный, -1 - подводный, +1 - надводный.</param>
-        /// <param name="heightMap">Карта высот, по которой определяется возможность появления ресурса</param>
-        /// <returns>Карта с диапазоном значений [0, multiplier].</returns>
-        public static int[] GenerateMap(int seed, int size, double scale, int multiplier, int resourceType,
-            int[] heightMap)
-        {
-            if (heightMap == null) throw new ArgumentNullException(nameof(heightMap));
-            if (size * size != heightMap.Length)
-                throw new Exception("Размеры карты ресурсов и карты высот не совпадают.");
-            var map = GenerateMap(seed, size, scale, multiplier);
-            switch (resourceType)
-            {
-                //case 0: break;
-                case -1:
-                {
-                    for (x = 0; x < size * size; x++)
-                        if (heightMap[x] >= 0)
-                            map[x] = 0;
-                    break;
-                }
-                case 1:
-                {
-                    for (x = 0; x < size * size; x++)
-                        if (heightMap[x] < 0)
-                            map[x] = 0;
-                    break;
-                }
-            }
-
-            return map;
         }
 
         /// <summary>
@@ -219,9 +454,9 @@ namespace MapGenerator
         /// <param name="temperature">Температура на уровне экватора В КЕЛЬВИНАХ</param>
         /// <param name="divisor">Параметр, ограничивающий предельное падение температуры</param>
         /// <param name="exp">Параметр, определяющий скорость изменения температуры.</param>
-        /// <param name="equator">Доля радиус линии экватора от центрального полюса планеты.</param>
+        /// <param name="equator">Доля радиуса экватора от длины карты.</param>
         /// <returns>Карта температур на нулевой высоте</returns>
-        public static int[] GenerateBaseTemperatureMap(int size, int temperature, double divisor = 3.4, double exp = 1,
+        public static int[] BaseTemperatureMap(int size, int temperature, double divisor = 3.4, double exp = 1,
             double equator = 0.28)
         {
             var baseTemperatureMap = new int[size * size];
@@ -234,6 +469,7 @@ namespace MapGenerator
                     var radius = Math.Sqrt(Math.Pow(x - size / 2, 2) + Math.Pow(y - size / 2, 2));
                     if (radius <= 2 * equator) // Если внутри двойного экватора.
                         baseTemperatureMap[index] =
+                            // temp * (( 1 - ( | sin ( (R - equator ) * pi / equator / 2 ) | ) ^ exp) / divisor)
                             (int) (temperature *
                                    (1 - Math.Pow(Math.Abs(Math.Sin((radius - equator) * Math.PI / equator / 2)), exp) /
                                        divisor));
@@ -252,44 +488,20 @@ namespace MapGenerator
         /// </summary>
         /// <param name="baseTemperatureMap">Карты температур на уровне экватора.</param>
         /// <param name="heightMap">Карта высот.</param>
-        /// <param name="reduction">Скорость уменьшения температуры с высотой. (градусы / 1 ед. высоты)</param>
+        /// <param name="reduction">Скорость уменьшения температуры с высотой (градусы / 1 ед. высоты).</param>
         /// <returns>Карта температур.</returns>
-        public static int[] GenerateTemperatureMap(int[] baseTemperatureMap, int[] heightMap, double reduction)
+        public static int[] ModeTemperatureMap(int[] baseTemperatureMap, int[] heightMap, double reduction)
         {
             var temperatureMap = new int[baseTemperatureMap.Length];
-            var size = (int) Math.Sqrt(baseTemperatureMap.Length);
-            for (var y = 0; y < size; y++)
+            for (var index = 0; index < baseTemperatureMap.Length; index++)
             {
-                index = y * size;
-                for (var x = 0; x < size; x++)
-                {
-                    temperatureMap[index] = heightMap[index] > 0
-                        ? baseTemperatureMap[index] - (int) (heightMap[index] * reduction)
-                        : baseTemperatureMap[index];
-                    ++index;
-                }
+                temperatureMap[index] = heightMap[index] > 0
+                    ? baseTemperatureMap[index] - (int)(heightMap[index] * reduction)
+                    : baseTemperatureMap[index];
             }
 
             return temperatureMap;
         }
-
-        /// <summary>
-        ///     Функция генерирует карты температур с учетом падения температуры с высотой.
-        /// </summary>
-        /// <param name="heightMap">Карта высот.</param>
-        /// <param name="temperature">Температура на уровне экватора В КЕЛЬВИНАХ</param>
-        /// <param name="reduction">Скорость уменьшения температуры с высотой. (градусы / 1 ед. высоты)</param>
-        /// <param name="divisor">Параметр, ограничивающий предельное падение температуры</param>
-        /// <param name="exp">Параметр, определяющий скорость изменения температуры.</param>
-        /// <param name="equator">Радиус линии экватора от центрального полюса планеты.</param>
-        /// <returns></returns>
-        public static int[] GenerateTemperatureMap(int[] heightMap, int temperature, double reduction,
-            double divisor = 3.4, double exp = 1, double equator = 0.28)
-        {
-            return GenerateTemperatureMap(
-                GenerateBaseTemperatureMap((int) Math.Floor(Math.Sqrt(heightMap.Length)), temperature, divisor, exp,
-                    equator)
-                , heightMap, reduction);
-        }
+        
     }
 }

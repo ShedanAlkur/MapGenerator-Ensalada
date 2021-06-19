@@ -519,7 +519,7 @@ namespace MapGenerator
             this.num_octaves.Size = new System.Drawing.Size(69, 20);
             this.num_octaves.TabIndex = 26;
             this.num_octaves.Value = new decimal(new int[] {
-            3,
+            1,
             0,
             0,
             0});

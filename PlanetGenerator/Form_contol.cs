@@ -92,7 +92,7 @@ namespace MapGenerator
             ModeTemperatureMap = new int[mapSize * mapSize];
 
             foreach (string key in DictNoiseMapType.Keys) cb_noise.Items.Add(key);
-            cb_noise.SelectedIndex = 2;
+            cb_noise.SelectedIndex = 0;
             foreach (string key in DictShowedMapType.Keys) cb_map.Items.Add(key);
             cb_map.SelectedIndex = 0;
 

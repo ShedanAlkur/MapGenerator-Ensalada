@@ -127,6 +127,8 @@ namespace PerfomanceTest
             int[] array1 = new int[numberOfTests];
             int[] array2 = new int[numberOfTests];
             int[] array3 = new int[numberOfTests];
+            int[] array4 = new int[numberOfTests];
+            int[] array5 = new int[numberOfTests];
             for (int i = 0; i < numberOfTests; i++)
             {
                 array[i] = rnd.NextDouble() * 10000-5000;
@@ -156,8 +158,34 @@ namespace PerfomanceTest
             sw.Stop();
             Console.WriteLine($"Inline ternary floor {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
 
+            sw.Restart();
+            for (int i = 0; i < numberOfTests; i++)
+                array4[i] = Floor(array[i]);
+            sw.Stop();
+            Console.WriteLine($"MyFloor() {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
+
+            int MyLocalFloor(double x)
+            {
+                if (x < 0 && x % -1 != 0) return (int)(x - 1);
+                else return (int)x;
+            }
+
+            sw.Restart();
+            for (int i = 0; i < numberOfTests; i++)
+                array5[i] = MyLocalFloor(array[i]);
+            sw.Stop();
+            Console.WriteLine($"MyLocalFloor() {numberOfTests} чисел за {sw.ElapsedMilliseconds}мс.");
+
             CollectionAssert.AreEquivalent(array1, array2);
             CollectionAssert.AreEquivalent(array1, array3);
+            CollectionAssert.AreEquivalent(array1, array4);
+            CollectionAssert.AreEquivalent(array1, array5);
+        }
+
+        int Floor(double x) 
+        {
+            if (x < 0 && x % -1 != 0) return (int)(x - 1);
+            else return (int)x;
         }
 
         [TestMethod]

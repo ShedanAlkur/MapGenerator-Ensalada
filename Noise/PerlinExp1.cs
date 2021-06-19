@@ -7,58 +7,83 @@ namespace Noise.Perlin
     /// </summary>
     public class PerlinExp1
     {
-        int magical1 = 256639923;
-        int magical2 = 807526976;
-        int magical3 = 836311903;
-        int magical4 = 735486054;
-        int magical5 = 971215073;
+        int v;
+        int[] magical;
+        int[] vertex;
+        double[] dotProduct;
+        double[] pointInQuad;
+        double[] tempVector;
 
-        private static int left, top, zoom, time, v;
-        static int c1, c2, c3, c4, c5;
 
-        private static double ftx1,
-            ftx2,
-            fbx1,
-            fbx2,
-            ztx1,
-            ztx2,
-            zbx1,
-            zbx2;
+        double res;
+        readonly double[] permutationTable;
+        int seed;
+        public int Seed
+        {
+            get => seed;
+            set
+            {
+                seed = value;
+                if (dimension > 0) FillMagicalArray();
+            }
+        }
+        int dimension;
+        public int Dimension
+        {
+            get => dimension;
+            set
+            {
+                dimension = value;
+                maxNoiseValue = 0.5 * Math.Sqrt(dimension);
+                magical = new int[dimension + 1];
+                FillMagicalArray();
+                vertex = new int[dimension];
+                pointInQuad = new double[dimension];
+                dotProduct = new double[1 << dimension];
+                tempVector = new double[dimension];
+            }
+        }
+        int octave;
+        public int Octave
+        {
+            get => octave;
+            set
+            {
+                octave = value;
+                octaveFactor = 2 - Math.Pow(persistence, octave - 1);
+            }
+        }
+        double persistence;
+        double Persistence
+        {
+            get => persistence; set
+            {
+                persistence = value;
+                octaveFactor = 2 - Math.Pow(persistence, octave - 1);
+            }
+        }
 
-        private static double tftx1,
-            tftx2,
-            tfbx1,
-            tfbx2,
-            tztx1,
-            tztx2,
-            tzbx1,
-            tzbx2;
+        double maxNoiseValue;
+        double octaveFactor;
+        private int k, j, dotFindingStep;
+        private double amplitude;
 
-        private static double pointInQuadX, pointInQuadY, pointInQuadZ, pointInQuadT;
-        private static double VectorX, VectorY, VectorZ, VectorT;
-        private static double res;
-        private readonly double[] permutationTable;
-        private readonly int seed;
-
-        public PerlinExp1(int seed = 0)
+        public PerlinExp1(int seed, int dimension, int octave, double persistence = 0.5)
         {
             this.seed = seed;
-            var rand = new Random(seed);
+            this.Dimension = dimension;
+            this.Octave = octave;
+            this.Persistence = persistence;
+
+            var rnd = new Random(seed);
             permutationTable = new double[1024];
-            for (var i = 0; i < 1024; i++)
-                permutationTable[i] = rand.NextDouble() * 2 - 1;
+            for (var i = 0; i < permutationTable.Length; i++)
+                permutationTable[i] = rnd.NextDouble() * 2 - 1;
         }
 
 
-        #region Interpolation functions
+        #region Вспомогательные функции
 
-        /// <summary>
-        ///     Функция выполняет интерполяцию.
-        /// </summary>
-        /// <param name="x">Локальная координата для интерполяции.</param>
-        /// <param name="a">Левая граница интервала интерполяции.</param>
-        /// <param name="b">Правая граница интервала интерполяции.</param>
-        /// <returns>Результат интерполяции.</returns>
         public static double Lerp(double x, double a, double b)
         {
             return a + x * (b - a);
@@ -96,99 +121,82 @@ namespace Noise.Perlin
         {
             return t * t * t * (t * (t * 6 - 15) + 10);
         }
-        #endregion
 
-        #region Noise functions
-
-        #region 2D
-
-        /// <summary>
-        ///     Функция генерирует шум в точке (fx,fy) для двумерного пространства.
-        /// </summary>
-        /// <param name="fx">Координата по оси X</param>
-        /// <param name="fy">Координата по оси Y</param>
-        /// <returns>Значение шума в точке (fx, fy). Ограничено отрезком [-1; +1]]</returns>
-        public double Noise(double fx, double fy)
+        static void NormalizeVector(ref double[] vector)
         {
-            /*
-                tx1--tx2
-                |    |
-                bx1--bx2
-            */
-
-            // Координаты левой верхней вершины квадрата точки.
-            if (fx < 0 && fx % -1 != 0) left = (int)(fx - 1);
-            else left = (int)fx;
-            if (fy < 0 && fy % -1 != 0) top = (int)(fy - 1);
-            else top = (int)fy;
-
-            // Локальные координаты точки внутри квадрата.
-            pointInQuadX = fx - left;
-            pointInQuadY = fy - top;
-
-
-            c1 = seed * magical1 + magical2;
-            c2 = left * magical3;
-            c5 = top * magical5;
-
-            // Извлекаем градиентные векторы для всех вершин квадрата.
-            // Векторы от вершин квадрата до точки внутри квадрата.
-            // Считаем скалярные произведения векторов между которыми будем интерполировать.
-            v = (int)(c2 ^ c5 ^ c1);
-            ftx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023];
-
-            v = (int)(((left + 1) * magical3) ^ c5 ^ c1);
-            ftx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023];
-
-            v = (int)(c2 ^ ((top + 1) * magical5) ^ c1);
-            fbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023];
-
-            v = (int)(((left + 1) * magical3) ^ ((top + 1) * magical5) ^ c1);
-            fbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
-                   (pointInQuadY - 1) * permutationTable[(v * 2) & 1023];
-
-            // Готовим параметры интерполяции, чтобы она не была линейной.
-            //QunticCurve = t * t * t * (t * (t * 6 - 15) + 10)
-            pointInQuadX = pointInQuadX * pointInQuadX * pointInQuadX * (pointInQuadX * (pointInQuadX * 6 - 15) + 10);
-            pointInQuadY = pointInQuadY * pointInQuadY * pointInQuadY * (pointInQuadY * (pointInQuadY * 6 - 15) + 10);
-
-            res = ftx1 + pointInQuadX * (ftx2 - ftx1) + pointInQuadY *
-                (fbx1 + pointInQuadX * (fbx2 - fbx1)
-                - (ftx1 + pointInQuadX * (ftx2 - ftx1)));
-
-            // Возвращаем результат.
-            return res;
+            double vectorLenght = 0;
+            for (byte i = 0; i < vector.Length; i++)
+                vectorLenght += vector[i] * vector[i];
+            vectorLenght = Math.Sqrt(vectorLenght);
+            for (byte i = 0; i < vector.Length; i++)
+                vector[i] = vector[i] / vectorLenght;
         }
 
-        /// <summary>
-        ///     Функция генерирует шум в точке (fx,fy,fz) для двумерного пространства.
-        /// </summary>
-        /// <param name="fx">Координата по оси X.</param>
-        /// <param name="fy">Координата по оси Y.</param>
-        /// <param name="octaves">Количество повторных наложений шума. Увеличивает детальность.</param>
-        /// <param name="persistence">Устойчивость к шуму. Выше значение - сильнее шум.</param>
-        /// <returns>Значение шума в точке (fx, fy, fz). Ограничено отрезком [-1; +1].</returns>
-        public double Noise(double fx, double fy, int octaves, double persistence = 0.5f)
+        void FillMagicalArray()
         {
-            double amplitude = 1;
-            double max = 0;
-            double result = 0;
+            var rnd = new Random(seed);
+            for (int i = 0; i < magical.Length; i++)
+                magical[i] = rnd.Next(int.MaxValue);
+        }
 
-            while (--octaves > -1)
+        #endregion
+
+        public double Noise(params double[] coords)
+        {
+            res = 0;
+            amplitude = 1;
+            for (k = 0; k < octave; k++)
             {
-                max += amplitude;
-                result += Noise(fx, fy) * amplitude;
-                amplitude *= persistence;
-                fx *= 2;
-                fy *= 2;
-            }
 
-            return result / max;
+                for (j = 0; j < dimension; j++)
+                {
+                    vertex[j] = (int)Math.Floor(coords[j]);
+                    pointInQuad[j] = coords[j] - vertex[j];
+                }
+
+                // Скалярные произведения в вершинах
+                for (j = 0; j < dotProduct.Length; j ++)
+                {
+                    // Коэффициент псевдорандома
+                    v = seed * magical[0];
+                    for (int i = dimension - 1; i >= 0; i--)
+                        v = v ^ ((((j >> i) & 0b1) == 0 ? vertex[i] : vertex[i] + 1) * magical[i + 1]);
+                    // Градиентный единичный вектор
+                    for (int i = 0; i < dimension; i++)
+                        tempVector[i] = permutationTable[(v * i) & 1023];
+                    NormalizeVector(ref tempVector);
+                    // Скалярные произведения в вершинах
+                    dotProduct[j] = 0;
+                    for (int i = dimension - 1; i >= 0; i--) 
+                    {
+                        dotProduct[j] += (((j >> i) & 0b1) == 0 ? pointInQuad[i] : pointInQuad[i] - 1) * tempVector[i];                        
+                    }
+                }
+
+                // Подготовка параметров интерполяции
+                for (j = 0; j < pointInQuad.Length; j++)
+                    pointInQuad[j] = QunticCurve(pointInQuad[j]);
+
+                // Линейная интерполяция между всеми противоположными точками/сторонами квадрата
+                dotFindingStep = 1;
+                int counter = 0;
+                while (dotFindingStep < (1 << (dimension )))
+                {
+                    for (j = 0; j < dotProduct.Length; j += dotFindingStep << 1)
+                        dotProduct[j] = Lerp(pointInQuad[counter], dotProduct[j], dotProduct[j + dotFindingStep]);
+                    dotFindingStep <<= 1;
+                    counter++;
+                }
+
+                // Применение шума в текущей октаве, подготовка к вычислению следующей октавы
+                res += dotProduct[0] * amplitude;
+                amplitude *= persistence;
+                for (j = 0; j < dimension; j++)
+                    coords[j] /= persistence;
+
+            }
+            return res / octaveFactor / maxNoiseValue;
         }
 
-
-        #endregion
-
-        #endregion
     }
 }

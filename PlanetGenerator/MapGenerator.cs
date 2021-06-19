@@ -45,7 +45,7 @@ namespace MapGenerator
         int octaves = 3, double persistence = 0.5f)
         {
             var map = new double[size * size];
-            var perlin = new PerlinFin(seed, octaves, persistence);
+            var perlin = new PerlinExp1(seed, 2, octaves, persistence);
             stopwatch.Start();
             for (y = 0; y < size; y++)
             {
@@ -59,7 +59,7 @@ namespace MapGenerator
                 }
             }
 
-            NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
+            NormalizeMatrix(ref map, -1, 1); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
             stopwatch.Stop();
             Console.WriteLine("Время, ушедшее на генерацию NoiseMap_testedA: " + stopwatch.ElapsedMilliseconds);
@@ -72,7 +72,7 @@ namespace MapGenerator
         {
             double octaveScale = (2 - Math.Pow(2, 1 - octaves));
             var map = new double[size * size];
-            var perlin = new PerlinFin(seed, octaves, persistence);
+            var perlin = new PerlinExp1(seed, 3, octaves, persistence);
             stopwatch.Start();
             L = size / scale; // Длина окружности, сечения тородида
             R = L / TAU; // Радиус окружности, сечения тороида
@@ -86,7 +86,9 @@ namespace MapGenerator
                     angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
 
 
-                    map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty); // Карта цилиндр
+                    //map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty); // Карта цилиндр
+                    map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty); // Плоская карта
+
 
                     //if (map[index] < min)
                     //    min = map[index]; // Сохраняем минимальные и максимальные значения для приведения шумов к [0, 1]
@@ -123,7 +125,7 @@ namespace MapGenerator
         int octaves = 3, double persistence = 0.5f)
         {
             var map = new double[size * size];
-            var perlin = new PerlinFin(seed, octaves, persistence);
+            var perlin = new PerlinExp1(seed, 4, octaves, persistence);
             stopwatch.Start();
             L = size / scale; // Длина окружности, сечения тородида
             R = L / TAU; // Радиус окружности, сечения тороида

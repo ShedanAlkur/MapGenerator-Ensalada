@@ -35,7 +35,7 @@ namespace Noise.Perlin
         double res;
         readonly double[] permutationTable;
         public int seed;
-        public int octave;
+        int octave;
         public int Octave
         {
             get => octave;
@@ -45,7 +45,7 @@ namespace Noise.Perlin
                 octaveFactor = 2 - Math.Pow(persistence, octave - 1);
             }
         }
-        public double persistence;
+        double persistence;
         public double Persistence
         {
             get => persistence; set
@@ -106,7 +106,7 @@ namespace Noise.Perlin
                 // Локальные координаты точки внутри квадрата.
                 pointInQuadX = fx - left;
 
-                c1 = seed * magical1 + magical2;
+                c1 = seed * magical1;
 
                 v = (int)(left * magical3);
                 ftx1 = permutationTable[v & 1023];
@@ -262,10 +262,10 @@ namespace Noise.Perlin
                     Lerp(pointInQuadY, Lerp(pointInQuadX, ztx1, ztx2), Lerp(pointInQuadX, zbx1, zbx2)))
                     * amplitude;
 
-                amplitude /= 2;
-                fx *= 2;
-                fy *= 2;
-                fz *= 2;
+                amplitude *= persistence;
+                fx /= persistence;
+                fy /= persistence;
+                fz /= persistence;
             }
             return res / octaveFactor;
         }
@@ -396,11 +396,11 @@ namespace Noise.Perlin
                         Lerp(pointInQuadY, Lerp(pointInQuadX, tztx1, tztx2), Lerp(pointInQuadX, tzbx1, tzbx2))))
                     * amplitude;
                 #endregion
-                amplitude /= 2;
-                fx *= 2;
-                fy *= 2;
-                fz *= 2;
-                ft *= 2;
+                amplitude *= persistence;
+                fx /= persistence;
+                fy /= persistence;
+                fz /= persistence;
+                ft /= persistence;
             }
             return res / octaveFactor;
         }

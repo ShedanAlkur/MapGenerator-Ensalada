@@ -74,12 +74,24 @@ namespace MapGenerator
             this.label6 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.gb_domainWarping = new System.Windows.Forms.GroupBox();
+            this.num_dw33 = new System.Windows.Forms.NumericUpDown();
+            this.num_dw32 = new System.Windows.Forms.NumericUpDown();
+            this.num_dw31 = new System.Windows.Forms.NumericUpDown();
+            this.num_dw23 = new System.Windows.Forms.NumericUpDown();
+            this.num_dw22 = new System.Windows.Forms.NumericUpDown();
+            this.num_dw21 = new System.Windows.Forms.NumericUpDown();
+            this.num_dw13 = new System.Windows.Forms.NumericUpDown();
+            this.num_dw12 = new System.Windows.Forms.NumericUpDown();
+            this.num_dw11 = new System.Windows.Forms.NumericUpDown();
             this.num_zd = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
             this.num_reduction = new System.Windows.Forms.NumericUpDown();
             this.label27 = new System.Windows.Forms.Label();
             this.toolTip1 = new System.Windows.Forms.ToolTip(this.components);
+            this.num_mode = new System.Windows.Forms.NumericUpDown();
+            this.label4 = new System.Windows.Forms.Label();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_mapSize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_size)).BeginInit();
@@ -100,9 +112,20 @@ namespace MapGenerator
             ((System.ComponentModel.ISupportInitialize)(this.num_oceanLevel)).BeginInit();
             this.flowLayoutPanel1.SuspendLayout();
             this.groupBox4.SuspendLayout();
+            this.gb_domainWarping.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw33)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw32)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw31)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw23)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw22)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw21)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw13)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw12)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw11)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_zd)).BeginInit();
             this.groupBox6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_reduction)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_mode)).BeginInit();
             this.SuspendLayout();
             // 
             // groupBox1
@@ -604,7 +627,7 @@ namespace MapGenerator
             this.groupBox3.Controls.Add(this.label14);
             this.groupBox3.Controls.Add(this.num_oceanLevel);
             this.groupBox3.Controls.Add(this.label6);
-            this.groupBox3.Location = new System.Drawing.Point(3, 425);
+            this.groupBox3.Location = new System.Drawing.Point(3, 545);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(362, 126);
             this.groupBox3.TabIndex = 6;
@@ -715,6 +738,7 @@ namespace MapGenerator
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.gb_domainWarping);
             this.groupBox4.Controls.Add(this.num_zd);
             this.groupBox4.Controls.Add(this.label3);
             this.groupBox4.Controls.Add(this.num_yd);
@@ -731,10 +755,248 @@ namespace MapGenerator
             this.groupBox4.Controls.Add(this.label13);
             this.groupBox4.Location = new System.Drawing.Point(3, 212);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(362, 207);
+            this.groupBox4.Size = new System.Drawing.Size(362, 327);
             this.groupBox4.TabIndex = 7;
             this.groupBox4.TabStop = false;
-            this.groupBox4.Text = "Настройки генерации карты шумов для ландшафта";
+            this.groupBox4.Text = "Настройки генерации карты шумов";
+            // 
+            // gb_domainWarping
+            // 
+            this.gb_domainWarping.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.gb_domainWarping.Controls.Add(this.label4);
+            this.gb_domainWarping.Controls.Add(this.num_mode);
+            this.gb_domainWarping.Controls.Add(this.num_dw33);
+            this.gb_domainWarping.Controls.Add(this.num_dw32);
+            this.gb_domainWarping.Controls.Add(this.num_dw31);
+            this.gb_domainWarping.Controls.Add(this.num_dw23);
+            this.gb_domainWarping.Controls.Add(this.num_dw22);
+            this.gb_domainWarping.Controls.Add(this.num_dw21);
+            this.gb_domainWarping.Controls.Add(this.num_dw13);
+            this.gb_domainWarping.Controls.Add(this.num_dw12);
+            this.gb_domainWarping.Controls.Add(this.num_dw11);
+            this.gb_domainWarping.Location = new System.Drawing.Point(9, 201);
+            this.gb_domainWarping.Name = "gb_domainWarping";
+            this.gb_domainWarping.Size = new System.Drawing.Size(347, 120);
+            this.gb_domainWarping.TabIndex = 37;
+            this.gb_domainWarping.TabStop = false;
+            this.gb_domainWarping.Text = "Параметры domain warping";
+            // 
+            // num_dw33
+            // 
+            this.num_dw33.DecimalPlaces = 1;
+            this.num_dw33.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw33.Location = new System.Drawing.Point(160, 97);
+            this.num_dw33.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw33.Name = "num_dw33";
+            this.num_dw33.Size = new System.Drawing.Size(69, 20);
+            this.num_dw33.TabIndex = 8;
+            this.num_dw33.Value = new decimal(new int[] {
+            41,
+            0,
+            0,
+            65536});
+            this.num_dw33.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // num_dw32
+            // 
+            this.num_dw32.DecimalPlaces = 1;
+            this.num_dw32.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw32.Location = new System.Drawing.Point(85, 97);
+            this.num_dw32.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw32.Name = "num_dw32";
+            this.num_dw32.Size = new System.Drawing.Size(69, 20);
+            this.num_dw32.TabIndex = 7;
+            this.num_dw32.Value = new decimal(new int[] {
+            23,
+            0,
+            0,
+            65536});
+            this.num_dw32.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // num_dw31
+            // 
+            this.num_dw31.DecimalPlaces = 1;
+            this.num_dw31.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw31.Location = new System.Drawing.Point(10, 97);
+            this.num_dw31.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw31.Name = "num_dw31";
+            this.num_dw31.Size = new System.Drawing.Size(69, 20);
+            this.num_dw31.TabIndex = 6;
+            this.num_dw31.Value = new decimal(new int[] {
+            32,
+            0,
+            0,
+            65536});
+            this.num_dw31.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // num_dw23
+            // 
+            this.num_dw23.DecimalPlaces = 1;
+            this.num_dw23.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw23.Location = new System.Drawing.Point(160, 71);
+            this.num_dw23.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw23.Name = "num_dw23";
+            this.num_dw23.Size = new System.Drawing.Size(69, 20);
+            this.num_dw23.TabIndex = 5;
+            this.num_dw23.Value = new decimal(new int[] {
+            24,
+            0,
+            0,
+            65536});
+            this.num_dw23.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // num_dw22
+            // 
+            this.num_dw22.DecimalPlaces = 1;
+            this.num_dw22.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw22.Location = new System.Drawing.Point(85, 71);
+            this.num_dw22.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw22.Name = "num_dw22";
+            this.num_dw22.Size = new System.Drawing.Size(69, 20);
+            this.num_dw22.TabIndex = 4;
+            this.num_dw22.Value = new decimal(new int[] {
+            13,
+            0,
+            0,
+            65536});
+            this.num_dw22.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // num_dw21
+            // 
+            this.num_dw21.DecimalPlaces = 1;
+            this.num_dw21.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw21.Location = new System.Drawing.Point(10, 71);
+            this.num_dw21.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw21.Name = "num_dw21";
+            this.num_dw21.Size = new System.Drawing.Size(69, 20);
+            this.num_dw21.TabIndex = 3;
+            this.num_dw21.Value = new decimal(new int[] {
+            52,
+            0,
+            0,
+            65536});
+            this.num_dw21.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // num_dw13
+            // 
+            this.num_dw13.DecimalPlaces = 1;
+            this.num_dw13.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw13.Location = new System.Drawing.Point(160, 45);
+            this.num_dw13.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw13.Name = "num_dw13";
+            this.num_dw13.Size = new System.Drawing.Size(69, 20);
+            this.num_dw13.TabIndex = 2;
+            this.num_dw13.Value = new decimal(new int[] {
+            12,
+            0,
+            0,
+            65536});
+            this.num_dw13.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // num_dw12
+            // 
+            this.num_dw12.DecimalPlaces = 1;
+            this.num_dw12.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw12.Location = new System.Drawing.Point(85, 45);
+            this.num_dw12.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw12.Name = "num_dw12";
+            this.num_dw12.Size = new System.Drawing.Size(69, 20);
+            this.num_dw12.TabIndex = 1;
+            this.num_dw12.Value = new decimal(new int[] {
+            52,
+            0,
+            0,
+            65536});
+            this.num_dw12.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // num_dw11
+            // 
+            this.num_dw11.DecimalPlaces = 1;
+            this.num_dw11.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.num_dw11.Location = new System.Drawing.Point(10, 45);
+            this.num_dw11.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_dw11.Name = "num_dw11";
+            this.num_dw11.Size = new System.Drawing.Size(69, 20);
+            this.num_dw11.TabIndex = 0;
+            this.num_dw11.Value = new decimal(new int[] {
+            11,
+            0,
+            0,
+            65536});
+            this.num_dw11.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
             // 
             // num_zd
             // 
@@ -781,7 +1043,7 @@ namespace MapGenerator
             this.groupBox6.Controls.Add(this.num_equator);
             this.groupBox6.Controls.Add(this.label9);
             this.groupBox6.Controls.Add(this.label21);
-            this.groupBox6.Location = new System.Drawing.Point(3, 557);
+            this.groupBox6.Location = new System.Drawing.Point(3, 677);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(362, 156);
             this.groupBox6.TabIndex = 9;
@@ -821,6 +1083,39 @@ namespace MapGenerator
             this.label27.TabIndex = 47;
             this.label27.Text = "Уменьшение темп. с высотой (C/км) (reduction):";
             // 
+            // num_mode
+            // 
+            this.num_mode.DecimalPlaces = 1;
+            this.num_mode.Increment = new decimal(new int[] {
+            2,
+            0,
+            0,
+            65536});
+            this.num_mode.Location = new System.Drawing.Point(278, 21);
+            this.num_mode.Minimum = new decimal(new int[] {
+            100,
+            0,
+            0,
+            -2147483648});
+            this.num_mode.Name = "num_mode";
+            this.num_mode.Size = new System.Drawing.Size(69, 20);
+            this.num_mode.TabIndex = 39;
+            this.num_mode.Value = new decimal(new int[] {
+            4,
+            0,
+            0,
+            0});
+            this.num_mode.ValueChanged += new System.EventHandler(this.сhangedSetting_NoiseMap);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(7, 23);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(88, 13);
+            this.label4.TabIndex = 38;
+            this.label4.Text = "Влияние (mode):";
+            // 
             // Form_contol
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -854,10 +1149,22 @@ namespace MapGenerator
             this.flowLayoutPanel1.ResumeLayout(false);
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.gb_domainWarping.ResumeLayout(false);
+            this.gb_domainWarping.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw33)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw32)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw31)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw23)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw22)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw21)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw13)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw12)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_dw11)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.num_zd)).EndInit();
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.num_reduction)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.num_mode)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -915,5 +1222,17 @@ namespace MapGenerator
         private System.Windows.Forms.ComboBox cb_noise;
         private System.Windows.Forms.NumericUpDown num_zd;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.GroupBox gb_domainWarping;
+        private System.Windows.Forms.NumericUpDown num_dw33;
+        private System.Windows.Forms.NumericUpDown num_dw32;
+        private System.Windows.Forms.NumericUpDown num_dw31;
+        private System.Windows.Forms.NumericUpDown num_dw23;
+        private System.Windows.Forms.NumericUpDown num_dw22;
+        private System.Windows.Forms.NumericUpDown num_dw21;
+        private System.Windows.Forms.NumericUpDown num_dw13;
+        private System.Windows.Forms.NumericUpDown num_dw12;
+        private System.Windows.Forms.NumericUpDown num_dw11;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.NumericUpDown num_mode;
     }
 }

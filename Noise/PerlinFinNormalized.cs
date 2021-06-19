@@ -32,7 +32,6 @@ namespace Noise.Perlin
 
         double pointInQuadX, pointInQuadY, pointInQuadZ, pointInQuadT;
         double res;
-        readonly double[] permutationTable;
         double[][] permutationVector;
         public int seed;
         int octave;

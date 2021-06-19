@@ -1,5 +1,4 @@
-﻿using Noise.Perlin;
-using System;
+﻿using System;
 using System.Windows.Forms;
 
 namespace MapGenerator

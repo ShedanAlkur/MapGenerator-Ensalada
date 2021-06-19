@@ -3,7 +3,7 @@
 namespace Noise.Perlin
 {
     /// <summary>
-    /// Класс для генерации шума Перлина в большоем диапазоне измерений.
+    /// Класс для генерации шума Перлина в пространстве произвольной размерности.
     /// </summary>
     public class PerlinMultidimensional
     {
@@ -64,9 +64,16 @@ namespace Noise.Perlin
 
         double maxNoiseValue;
         double octaveFactor;
-        private int k, j, dotFindingStep;
+        private int k, j, l, m, n, dotFindingStep;
         private double amplitude;
 
+        /// <summary>
+        /// Инициализирует новый экземпляр класса PerlinFin с помощью указанных начальных значений.
+        /// </summary>
+        /// <param name="seed">Семя генерации шума.</param>
+        /// <param name="dimension">Размерность пространства, в котором генерируется шум.</param>
+        /// <param name="octave">Количество октав, которое рассчитывается для шума в каждой точке.</param>
+        /// <param name="persistence">Устойчивость к наложению октав. Больше величина - сильнее влияние октав.</param>
         public PerlinMultidimensional(int seed, int dimension, int octave, double persistence = 0.5)
         {
             this.seed = seed;
@@ -89,16 +96,6 @@ namespace Noise.Perlin
         {
             x = (1 - Math.Cos(x * Math.PI)) * 0.5;
             return a * (1 - x) + b * x;
-        }
-
-        public static double CubicInterpolation(double v0, double v1, double v2, double v3, double x)
-        {
-            double P = (v3 - v2) - (v0 - v1);
-            double Q = (v0 - v1) - P;
-            double R = v2 - v0;
-            double S = v1;
-
-            return P * x * 3 + Q * x * 2 + R * x + S;
         }
 
         // x^2*(3-2x)
@@ -128,13 +125,18 @@ namespace Noise.Perlin
 
         #endregion
 
+        /// <summary>
+        /// Функция генерации шума по заданным координатам.
+        /// </summary>
+        /// <param name="coords">Координаты генерации шума. Количество параметров должно соответствовать выбранной размерности пространства.</param>
+        /// <returns>Значение шума в заданных координатах. Находится в диапазоне [-1; 1].</returns>
         public double Noise(params double[] coords)
         {
             res = 0;
             amplitude = 1;
             for (k = 0; k < octave; k++)
             {
-
+                // Координаты узла, к которому относится точка
                 for (j = 0; j < dimension; j++)
                 {
                     vertex[j] = (int)Math.Floor(coords[j]);
@@ -146,17 +148,17 @@ namespace Noise.Perlin
                 {
                     // Коэффициент псевдорандома
                     v = seed * magical[0];
-                    for (int i = dimension - 1; i >= 0; i--)
-                        v = v ^ ((((j >> i) & 0b1) == 0 ? vertex[i] : vertex[i] + 1) * magical[i + 1]);
+                    for (this.l = dimension - 1; this.l >= 0; this.l--)
+                        v = v ^ ((((j >> this.l) & 0b1) == 0 ? vertex[this.l] : vertex[this.l] + 1) * magical[this.l + 1]);
                     // Градиентный единичный вектор
-                    for (int i = 0; i < dimension; i++)
-                        tempVector[i] = permutationTable[(v * (i + 1)) & 1023];
+                    for (this.l = 0; this.l < dimension; this.l++)
+                        tempVector[this.l] = permutationTable[(v * (this.l + 1)) & 1023];
                     NormalizeVector(ref tempVector);
                     // Скалярные произведения в вершинах
                     dotProduct[j] = 0;
-                    for (int i = dimension - 1; i >= 0; i--) 
+                    for (this.l = dimension - 1; this.l >= 0; this.l--) 
                     {
-                        dotProduct[j] += (((j >> i) & 0b1) == 0 ? pointInQuad[i] : pointInQuad[i] - 1) * tempVector[i];                        
+                        dotProduct[j] += (((j >> this.l) & 0b1) == 0 ? pointInQuad[this.l] : pointInQuad[this.l] - 1) * tempVector[this.l];                        
                     }
                 }
 
@@ -166,13 +168,13 @@ namespace Noise.Perlin
 
                 // Линейная интерполяция между всеми противоположными точками/сторонами квадрата
                 dotFindingStep = 1;
-                int counter = 0;
+                l = 0;
                 while (dotFindingStep < (1 << (dimension )))
                 {
                     for (j = 0; j < dotProduct.Length; j += dotFindingStep << 1)
-                        dotProduct[j] = Lerp(pointInQuad[counter], dotProduct[j], dotProduct[j + dotFindingStep]);
+                        dotProduct[j] = Lerp(pointInQuad[l], dotProduct[j], dotProduct[j + dotFindingStep]);
                     dotFindingStep <<= 1;
-                    counter++;
+                    l++;
                 }
 
                 // Применение шума в текущей октаве, подготовка к вычислению следующей октавы

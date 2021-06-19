@@ -5,16 +5,19 @@ using System.Text;
 
 namespace Noise.Perlin
 {
-    public class PerlinFin
+    /// <summary>
+    /// Класс для генерации процедурного шума Перлина в одно-, дву-, трех- и четырехмерном пространстве.
+    /// </summary>
+    public class PerlinFin 
     {
         int left, top, zoom, time, v;
 
-        int magical1 = 256639923;
-        int magical2 = 807526976;
-        int magical3 = 836311903;
-        int magical4 = 735486054;
-        int magical5 = 971215073;
-        int magical6 = 623650874;
+        const int magical1 = 256639923;
+        const int magical2 = 807526976;
+        const int magical3 = 836311903;
+        const int magical4 = 735486054;
+        const int magical5 = 971215073;
+        const int magical6 = 623650874;
         int c1, c2, c3, c4, c5;
 
         double ftx1, ftx2,
@@ -60,7 +63,12 @@ namespace Noise.Perlin
         static readonly double max4dNoiseValue = 0.5 * Math.Sqrt(4);
         double octaveFactor;
 
-
+        /// <summary>
+        /// Инициализирует новый экземпляр класса PerlinFin с помощью указанных начальных значений.
+        /// </summary>
+        /// <param name="seed">Семя генерации шума.</param>
+        /// <param name="octave">Количество октав, которое рассчитывается для шума в каждой точке.</param>
+        /// <param name="persistence">Устойчивость к наложению октав. Больше величина - сильнее влияние октав.</param>
         public PerlinFin(int seed, int octave, double persistence = 0.5)
         {
             this.seed = seed;
@@ -73,26 +81,53 @@ namespace Noise.Perlin
                 permutationTable[i] = rnd.NextDouble() * 2 - 1;
         }
 
-        static double SmoothStep(double t) => t * t * (3 - 2 * t);
-        static double QunticCurve(double t) => t * t * t * (t * (t * 6 - 15) + 10);
+        #region Вспомогательные методы
+
+        /// <summary>
+        /// Функция линейной интерполяции.
+        /// </summary>
+        /// <param name="t">Координата интерполяции, лежащая в отрезке [0; 1].</param>
+        /// <param name="a">Значение функции в координате {0}.</param>
+        /// <param name="b">Значение функции в координате {1}.</param>
+        /// <returns>Результат интерполяции. Лежит в отрезке [0; 1].</returns>
         static double Lerp(double t, double a, double b) => a + t * (b - a);
+
+        /// <summary>
+        /// Сигмовидная функция интерполяции третьей степени.
+        /// </summary>
+        /// <param name="t">Координата интерполяции, лежащая в отрезке [0; 1]</param>
+        /// <returns>Результат интерполяции. Лежит в отрезке [0; 1].</returns>
+        static double SmoothStep(double t) => t * t * (3 - 2 * t);
+
+        /// <summary>
+        /// Сигмовидная функция интерполяции шестой степени.
+        /// </summary>
+        /// <param name="t">Координата интерполяции, лежащая в отрезке [0; 1].</param>
+        /// <returns>Результат интерполяции. Лежит в отрезке [0; 1].</returns>
+        static double QunticCurve(double t) => t * t * t * (t * (t * 6 - 15) + 10);
+
+        /// <summary>
+        /// Функция Косинусной интерполяции.
+        /// </summary>
+        /// <param name="t">Координата интерполяции, лежащая в отрезке [0; 1].</param>
+        /// <param name="a">Значение функции в координате {0}.</param>
+        /// <param name="b">Значение функции в координате {1}.</param>
+        /// <returns>Результат интерполяции. Лежит в отрезке [0; 1].</returns>
         public static double CosineInterpolation(double x, double a, double b)
         {
             x = (1 - Math.Cos(x * Math.PI)) * 0.5;
             return a * (1 - x) + b * x;
         }
-        public static double CubicInterpolation(double v0, double v1, double v2, double v3, double x)
-        {
-            double P = (v3 - v2) - (v0 - v1);
-            double Q = (v0 - v1) - P;
-            double R = v2 - v0;
-            double S = v1;
 
-            return P * x * 3 + Q * x * 2 + R * x + S;
-        }
+        #endregion
 
-        #region Функции генерации шума
+        #region Методы генерации шума
 
+        /// <summary>
+        /// Функция генерации шума в одномерном пространстве.
+        /// </summary>
+        /// <param name="fx">Координата нахождения шума по оси oX.</param>
+        /// <returns>Значение шума в заданных координатах.</returns>
         public double Noise(double fx)
         {
             res = 0;
@@ -126,6 +161,12 @@ namespace Noise.Perlin
             return res / octaveFactor;
         }
 
+        /// <summary>
+        /// Функция генерации шума в двумерном пространстве.
+        /// </summary>
+        /// <param name="fx">Координата нахождения шума по оси oX.</param>
+        /// <param name="fy">Координата нахождения шума по оси oY</param>
+        /// <returns>Значение шума в заданных координатах.</returns>
         public double Noise(double fx, double fy)
         {
             res = 0;
@@ -184,6 +225,13 @@ namespace Noise.Perlin
             return res / octaveFactor;
         }
 
+        /// <summary>
+        /// Функция генерации шума в трехмерном пространстве.
+        /// </summary>
+        /// <param name="fx">Координата нахождения шума по оси oX.</param>
+        /// <param name="fy">Координата нахождения шума по оси oY</param>
+        /// <param name="fz">Координата нахождения шума по оси oZ</param>
+        /// <returns>Значение шума в заданных координатах.</returns>
         public double Noise(double fx, double fy, double fz)
         {
             /*
@@ -270,6 +318,14 @@ namespace Noise.Perlin
             return res / octaveFactor;
         }
 
+        /// <summary>
+        /// Функция генерации шума в четырехмерном пространстве.
+        /// </summary>
+        /// <param name="fx">Координата нахождения шума по оси oX.</param>
+        /// <param name="fy">Координата нахождения шума по оси oY</param>
+        /// <param name="fz">Координата нахождения шума по оси oZ</param>
+        /// <param name="ft">Координата нахождения шума по оси oT</param>
+        /// <returns>Значение шума в заданных координатах.</returns>
         public double Noise(double fx, double fy, double fz, double ft)
         {
             res = 0;
@@ -404,7 +460,6 @@ namespace Noise.Perlin
             }
             return res / octaveFactor;
         }
-
 
         #endregion
     }

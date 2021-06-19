@@ -23,7 +23,10 @@ namespace MapGenerator
         }
 
         public int[] HeightMap;
-        public bool heightMapIsReady; // Готовность карты высот к отображению.
+        public bool heightMapIsReady;
+        /// <summary>
+        /// Готовность карты высот к отображению.
+        /// </summary>
         public bool HeightMapIsReady
         {
             get => heightMapIsReady;
@@ -31,7 +34,10 @@ namespace MapGenerator
         }
 
         public int[] BaseTemperatureMap;
-        public bool baseTemperatureMapIsReady; // Готовность карты начальных температур к отображению.
+        public bool baseTemperatureMapIsReady;
+        /// <summary>
+        /// Готовность карты начальных температур к отображению
+        /// </summary>
         public bool BaseTemperatureMapIsReady
         {
             get => baseTemperatureMapIsReady;
@@ -39,7 +45,10 @@ namespace MapGenerator
         }
 
         public int[] ModeTemperatureMap;
-        public bool modeTemperatureMapIsReady; // Готовность карты итоговых температур к отображению.
+        public bool modeTemperatureMapIsReady;
+        /// <summary>
+        /// Готовность карты итоговых температур к отображению
+        /// </summary>
         public bool ModeTemperatureMapIsReady
         {
             get => modeTemperatureMapIsReady;
@@ -62,8 +71,8 @@ namespace MapGenerator
             ["3D шум с Z смещением"] = NoiseMapType.simple3d,
             ["3D шум, замкнутый по X"] = NoiseMapType.looped3d,
             ["4D шум, замкнутый по X и Y"] = NoiseMapType.looped4d,
-            ["domainWarped2D"] = NoiseMapType.domainWarped2D,
-            ["domainWarped3D"] = NoiseMapType.domainWarped3D,
+            ["domainWarped2D"] = NoiseMapType.domainWarped2d,
+            ["domainWarped3D"] = NoiseMapType.domainWarped3d,
         };
 
         readonly Dictionary<string, ShowedMapType> DictShowedMapType = new Dictionary<string, ShowedMapType>()
@@ -117,8 +126,6 @@ namespace MapGenerator
             }
             catch (Exception _){ }
         }
-
-
         void Visualize(ShowedMapType showedMapType)
         {
             switch (showedMapType)
@@ -205,7 +212,7 @@ namespace MapGenerator
                     break;
                 case NoiseMapType.simple1d:
                     NoiseMap = MapGenerator.NoiseMap_simple1d(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
+(float)num_scale.Value, (int)num_yd.Value, (int)num_octaves.Value,
 (float)num_persistance.Value);
                     break;
                 case NoiseMapType.simple2d:
@@ -213,15 +220,19 @@ namespace MapGenerator
 (float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
 (float)num_persistance.Value);
                     break;
-                case NoiseMapType.domainWarped2D:
+                case NoiseMapType.domainWarped2d:
                     NoiseMap = MapGenerator.NoiseMap_domainWarped2D(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-(float)num_persistance.Value);
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, 
+(double)num_mode.Value, (double)num_dw11.Value, (double)num_dw12.Value, (double)num_dw21.Value, (double)num_dw22.Value,
+(int)num_octaves.Value, (float)num_persistance.Value);
                     break;
-                case NoiseMapType.domainWarped3D:
+                case NoiseMapType.domainWarped3d:
                     NoiseMap = MapGenerator.NoiseMap_domainWarped3D(seed, mapSize,
-(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (int)num_octaves.Value,
-(float)num_persistance.Value);
+(float)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value,
+(double)num_mode.Value, (double)num_dw11.Value, (double)num_dw12.Value, (double)num_dw13.Value,
+(double)num_dw21.Value, (double)num_dw22.Value, (double)num_dw23.Value,
+(double)num_dw31.Value, (double)num_dw32.Value, (double)num_dw33.Value,
+(int)num_octaves.Value, (float)num_persistance.Value);
                     break;
                 case NoiseMapType.simple3d:
                     NoiseMap = MapGenerator.NoiseMap_simple3d(seed, mapSize,
@@ -240,8 +251,6 @@ namespace MapGenerator
                     break;
                 default: return;
             }
-            //todo: поддержка выбора типа шума прямо в контролере
-            //NoiseMap = new double[(int)num_mapSize.Value * (int)num_mapSize.Value];
 
             NoiseMapIsReady = true;
 
@@ -328,7 +337,55 @@ namespace MapGenerator
             }
         }
 
-        private void btn_sizeChange_Click(object sender, EventArgs e) // Установка новых размеров карты.
+        /// <summary>
+        /// Обновление активности компонентов настройски шума в зависимости от выбранного типа шума.
+        /// </summary>
+        void UpdateComponentActivity(NoiseMapType noiseMapType)
+        {
+            switch (noiseMapType)
+            {
+                case NoiseMapType.simple1d:
+                    num_yd.Enabled = false;
+                    num_zd.Enabled = false;
+                    break;
+                case NoiseMapType.simple3d:
+                    num_yd.Enabled = true;
+                    num_zd.Enabled = true;
+                    break;
+                default:
+                    num_yd.Enabled = true;
+                    num_zd.Enabled = false;
+                    break;
+            }
+
+            switch (noiseMapType)
+            {
+                case NoiseMapType.domainWarped2d:
+                    gb_domainWarping.Enabled = true;
+                    num_dw13.Enabled = false;
+                    num_dw23.Enabled = false;
+                    num_dw31.Enabled = false;
+                    num_dw32.Enabled = false;
+                    num_dw33.Enabled = false;
+                    break;
+                case NoiseMapType.domainWarped3d:
+                    gb_domainWarping.Enabled = true;
+                    num_dw13.Enabled = true;
+                    num_dw23.Enabled = true;
+                    num_dw31.Enabled = true;
+                    num_dw32.Enabled = true;
+                    num_dw33.Enabled = true;
+                    break;
+                default:
+                    gb_domainWarping.Enabled = false;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Установка новых размеров карты.
+        /// </summary>
+        private void btn_sizeChange_Click(object sender, EventArgs e)
         {
             if (mapSize != num_mapSize.Value)
             {
@@ -343,7 +400,10 @@ namespace MapGenerator
             }
         }
 
-        private void btn_generateMaps_Click(object sender, EventArgs e) // Генерация и визуализация карты.
+        /// <summary>
+        /// Генерация и визуализация карты.
+        /// </summary>
+        private void btn_generateMaps_Click(object sender, EventArgs e)
         {
             //ResetMapFlags();
             PrepareToVisualization();
@@ -354,6 +414,7 @@ namespace MapGenerator
 
         private void cb_noise_SelectedIndexChanged(object sender, EventArgs e)
         {
+            UpdateComponentActivity(DictNoiseMapType[cb_noise.Text]);
             NoiseMapIsReady = false;
             if (cb_sync.Checked)
             {
@@ -361,7 +422,6 @@ namespace MapGenerator
                 Visualize();
             }
         }
-
         private void comboBox_map_SelectedIndexChanged(object sender, EventArgs e) // Изменение типа отображаемой карты.
         {
             if (cb_sync.Checked)
@@ -370,7 +430,6 @@ namespace MapGenerator
                 Visualize();
             }
         }
-
         private void сhangedSetting_NoiseMap(object sender, EventArgs e)
         {
             seed = (int)num_seed.Value;
@@ -400,11 +459,9 @@ namespace MapGenerator
             }
         }
 
-
-
         #endregion
 
-        #region Получение цвета
+        #region Методы получения цвета.
 
         private Color GetHeightColor(int height)
         {
@@ -441,7 +498,7 @@ namespace MapGenerator
 
         #endregion
 
-        #region Словари цветов
+        #region Словари цветов.
 
         private readonly Dictionary<int, Color> HeightColors = new Dictionary<int, Color>
         {

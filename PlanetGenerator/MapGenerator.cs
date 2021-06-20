@@ -40,11 +40,55 @@ namespace MapGenerator
     {
         const double TAU = 2 * Math.PI;
 
+        /// <summary>
+        /// Таймер для замера двительности генерации карты.
+        /// </summary>
         static readonly Stopwatch stopwatch = new Stopwatch();
-        static double min, max;
-        static double tx, ty, L, R;
-        static double angle_a, angle_b;
-        static int x, y, index;
+
+        /// <summary>
+        /// Текущая координата по оси oX, соответствующая рассматриваемой клетке карты с учетом масштаба и смещения.
+        /// </summary>
+        static double tx;
+
+        /// <summary>
+        /// Текущая координата по оси oY, соответствующая рассматриваемой клетке карты с учетом масштаба и смещения.
+        /// </summary>
+        static double ty;
+
+        /// <summary>
+        /// Длина окружности, сечения тородида.
+        /// </summary>
+        static double lenght;
+
+        /// <summary>
+        /// Радиус окружности, сечения тороида.
+        /// </summary>
+        static double radius;
+
+        /// <summary>
+        /// Угол для взятия проекции значения шума по координате <c>tx</c> из цилиндра в трехмерном шуме / из сечения тороида в трехмерном шуме.
+        /// </summary>
+        static double angleX;
+
+        /// <summary>
+        /// Угол для взятия проекции значения шума по координате <c>ty</c> из тороида в четырехмерном шуме.
+        /// </summary>
+        static double angleY;
+
+        /// <summary>
+        /// Текущая клетка карты по оси oX. Используется в счетчиках циклов.
+        /// </summary>
+        static int x;
+
+        /// <summary>
+        /// Текущая клетка карты по оси oY. Используется в счетчиках циклов.
+        /// </summary>
+        static int y;
+
+        /// <summary>
+        /// Индекс рассматриваемой ячейки карты.
+        /// </summary>
+        static int index;
 
         #region Генерация карт шумов
 
@@ -123,14 +167,7 @@ namespace MapGenerator
                     ++index;
                 }
             }
-
-            double localMax = double.NegativeInfinity;
-            double localMin = double.PositiveInfinity;
-            foreach (var v in map)
-                if (v > localMax) localMax = v;
-                else if (v < localMin) localMin = v;
-            Console.WriteLine($"max={max}; localMax={localMax}; localMin={localMin}");
-
+            //PrintMinMaxValueOfMatrix(map);
             NormalizeMatrix(ref map);
 
             stopwatch.Stop();
@@ -157,8 +194,8 @@ namespace MapGenerator
             var map = new double[size * size];
             var perlin = new Perlin(seed, octaves, persistence);
             stopwatch.Start();
-            L = size / scale; // Длина окружности, сечения тородида
-            R = L / TAU; // Радиус окружности, сечения тороида
+            lenght = size / scale; // Длина окружности, сечения тородида
+            radius = lenght / TAU; // Радиус окружности, сечения тороида
             for (y = 0; y < size; y++)
             {
                 index = y * size;
@@ -170,7 +207,7 @@ namespace MapGenerator
                     ++index;
                 }
             }
-
+            //PrintMinMaxValueOfMatrix(map);
             NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
             stopwatch.Stop();
@@ -196,31 +233,21 @@ namespace MapGenerator
             var map = new double[size * size];
             var perlin = new Perlin(seed, octaves, persistence);
             stopwatch.Start();
-            L = size / scale; // Длина окружности, сечения тородида
-            R = L / TAU; // Радиус окружности, сечения тороида
+            lenght = size / scale; // Длина окружности, сечения тородида
+            radius = lenght / TAU; // Радиус окружности, сечения тороида
             for (y = 0; y < size; y++)
             {
                 index = y * size;
-                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
+                ty = (y + dy) / scale;
                 for (x = 0; x < size; x++)
                 {
-                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
-                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
-                    map[index] = perlin.Noise(R * Math.Cos(angle_a), R * Math.Sin(angle_a), ty); // Карта цилиндр
+                    tx = (x + dx) / scale;
+                    angleX = TAU * tx / lenght;
+                    map[index] = perlin.Noise(radius * Math.Cos(angleX), radius * Math.Sin(angleX), ty); // Карта цилиндр
                     ++index;
                 }
             }
-
-
-            double localMax = double.NegativeInfinity;
-            double localMin = double.PositiveInfinity;
-
-            foreach (var v in map)
-                if (v > localMax) localMax = v;
-                else if (v < localMin) localMin = v;
-
-            Console.WriteLine($"max={max}; localMax={localMax}; localMin={localMin}");
-
+            PrintMinMaxValueOfMatrix(map);
             NormalizeMatrix(ref map);
 
             stopwatch.Stop();
@@ -246,35 +273,24 @@ namespace MapGenerator
             var map = new double[size * size];
             var perlin = new Perlin(seed, octaves, persistence);
             stopwatch.Start();
-            L = size / scale; // Длина окружности, сечения тородида
-            R = L / TAU; // Радиус окружности, сечения тороида
+            lenght = size / scale; // Длина окружности, сечения тородида.
+            radius = lenght / TAU; // Радиус окружности, сечения тороида.
             for (y = 0; y < size; y++)
             {
                 index = y * size;
-                ty = (y + dy) / scale; // y с учетом смещения и приближения карты
-                angle_b = TAU * ty / L; // Текущий угол поворота от координаты y
+                ty = (y + dy) / scale;
+                angleY = TAU * ty / lenght;
                 for (x = 0; x < size; x++)
                 {
-                    tx = (x + dx) / scale; // x с учетом смещение и приближения карты
-                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
-                    map[index] = perlin.Noise(R * Math.Cos(angle_a), // Карта тороид
-                        R * Math.Sin(angle_a),
-                        R * Math.Sin(angle_b),
-                        R * Math.Cos(angle_b));
+                    tx = (x + dx) / scale;
+                    angleX = TAU * tx / lenght;
+                    map[index] = perlin.Noise(radius * Math.Cos(angleX), // Карта тороид
+                        radius * Math.Sin(angleX),
+                        radius * Math.Sin(angleY),
+                        radius * Math.Cos(angleY));
                     ++index;
                 }
             }
-
-
-            double localMax = double.NegativeInfinity;
-            double localMin = double.PositiveInfinity;
-
-            foreach (var v in map)
-                if (v > localMax) localMax = v;
-                else if (v < localMin) localMin = v;
-
-            Console.WriteLine($"max={max}; localMax={localMax}; localMin={localMin}");
-
             NormalizeMatrix(ref map);
 
             stopwatch.Stop();
@@ -304,24 +320,23 @@ namespace MapGenerator
             var map = new double[size * size];
             var perlin = new Perlin(seed, octaves, persistence);
             stopwatch.Start();
-            L = size / scale; // Длина окружности, сечения тородида
-            R = L / TAU; // Радиус окружности, сечения тороида
+            lenght = size / scale; // Длина окружности, сечения тородида
+            radius = lenght / TAU; // Радиус окружности, сечения тороида
             for (y = 0; y < size; y++)
             {
                 index = y * size;
                 ty = (y + dy) / scale; // y с учетом смещения и приближения карты
-                angle_b = TAU * ty / L; // Текущий угол поворота от координаты y
+                angleY = TAU * ty / lenght; // Текущий угол поворота от координаты y
                 for (x = 0; x < size; x++)
                 {
                     tx = (x + dx) / scale; // x с учетом смещение и приближения карты
-                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
+                    angleX = TAU * tx / lenght; // Текущий угол поворота от координаты x
                     double xq = perlin.Noise(tx + domWaprParam11, ty + domWaprParam12);
                     double yq = perlin.Noise(tx + domWaprParam21, ty + domWaprParam22);
-                    map[index] = perlin.Noise(tx + mode * xq, ty + mode * yq); // Плоская карта с домэин деформрмэтион
+                    map[index] = perlin.Noise(tx + mode * xq, ty + mode * yq); // Плоская карта со смещением по областям.
                     ++index;
                 }
             }
-
             NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
             stopwatch.Stop();
@@ -353,8 +368,8 @@ namespace MapGenerator
             var map = new double[size * size];
             var perlin = new Perlin(seed, octaves, persistence);
             stopwatch.Start();
-            L = size / scale; // Длина окружности, сечения тородида
-            R = L / TAU; // Радиус окружности, сечения тороида
+            lenght = size / scale; // Длина окружности, сечения тородида
+            radius = lenght / TAU; // Радиус окружности, сечения тороида
             for (y = 0; y < size; y++)
             {
                 index = y * size;
@@ -362,18 +377,17 @@ namespace MapGenerator
                 for (x = 0; x < size; x++)
                 {
                     tx = (x + dx) / scale; // x с учетом смещение и приближения карты
-                    angle_a = TAU * tx / L; // Текущий угол поворота от координаты x
+                    angleX = TAU * tx / lenght; // Текущий угол поворота от координаты x
 
-                    double rx = R * Math.Cos(angle_a);
-                    double ry = R * Math.Sin(angle_a);
+                    double rx = radius * Math.Cos(angleX);
+                    double ry = radius * Math.Sin(angleX);
                     double xq = perlin.Noise(rx + domWaprParam11, ry + domWaprParam12, ty + domWaprParam13);
                     double yq = perlin.Noise(rx + domWaprParam21, ry + domWaprParam22, ty + domWaprParam23);
                     double zq = perlin.Noise(rx + domWaprParam31, ry + domWaprParam32, ty + domWaprParam33);
-                    map[index] = perlin.Noise(rx + mode * xq, ry + mode * yq, ty + mode * zq); // Карта цилиндр с домэин деформрмэтион
+                    map[index] = perlin.Noise(rx + mode * xq, ry + mode * yq, ty + mode * zq); // Карта цилиндр со смещением по областям.
                     index++;
                 }
             }
-
             NormalizeMatrix(ref map); // Сводим карту шумов от диапазона [-1; +1] (почти) к [0; 1]
 
             stopwatch.Stop();
@@ -410,6 +424,22 @@ namespace MapGenerator
             double d = max - min;
             for (int i = 0; i < matrix.Length; i++)
                 matrix[i] = (matrix[i] - min) / d;
+        }
+
+        /// <summary>
+        ///  Функция выводит в консоль минимальное и максимальное значение заданной матрица.
+        /// </summary>
+        /// <param name="matrix">Матрица, в которой осуществляется поиск минимального и максимального значений.</param>
+        private static void PrintMinMaxValueOfMatrix(double[] matrix)
+        {
+            double max = double.NegativeInfinity;
+            double min = double.PositiveInfinity;
+
+            foreach (var v in matrix)
+                if (v > max) max = v;
+                else if (v < min) min = v;
+
+            Console.WriteLine($"max={max}; min={min}");
         }
 
         /// <summary>

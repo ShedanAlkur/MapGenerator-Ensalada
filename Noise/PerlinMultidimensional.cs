@@ -7,16 +7,52 @@ namespace Noise.Perlin
     /// </summary>
     public class PerlinMultidimensional
     {
-        int v;
-        int[] magical;
-        int[] vertex;
-        double[] dotProduct;
-        double[] pointInQuad;
-        double[] tempVector;
+        /// <summary>
+        /// Временная переменная для вычислений.
+        /// </summary>
+        private int v;
 
-        double res;
-        readonly double[] permutationTable;
-        int seed;
+        /// <summary>
+        /// Значения для генерации псевдослучайных градиентных векторов.
+        /// </summary>
+        private int[] magical;
+
+        /// <summary>
+        /// Наименьшие координаты вершины куба, в который вписана точка генерации шума.
+        /// </summary>
+        private int[] vertex;
+
+        /// <summary>
+        /// Результаты скалярных произведений в вершине куба, в который вписана точка генерации шума.
+        /// </summary>
+        private double[] dotProduct;
+
+        /// <summary>
+        /// Расстояние от точки генераии шума до вершин куба, в который она вписана.
+        /// </summary>
+        private double[] pointInQuad;
+
+        /// <summary>
+        /// Координаты временного вектора.
+        /// </summary>
+        private double[] tempVector;
+
+        /// <summary>
+        /// Результат вычислений.
+        /// </summary>
+        private double result;
+
+        /// <summary>
+        /// Таблица псевдослучайных длин векторов в диапазоне [0; 1].
+        /// </summary>
+        private readonly double[] permutationTable;
+        /// <summary>
+        /// Семя генерации шума.
+        /// </summary>
+        private int seed;
+        /// <summary>
+        /// Семя генерации шума.
+        /// </summary>
         public int Seed
         {
             get => seed;
@@ -26,7 +62,15 @@ namespace Noise.Perlin
                 if (dimension > 0) FillMagicalArray();
             }
         }
-        int dimension;
+
+        /// <summary>
+        /// Размерность пространства, в котором генерируется шум.
+        /// </summary>
+        private int dimension;
+
+        /// <summary>
+        /// Размерность пространства, в котором генерируется шум.
+        /// </summary>
         public int Dimension
         {
             get => dimension;
@@ -42,7 +86,14 @@ namespace Noise.Perlin
                 tempVector = new double[dimension];
             }
         }
-        int octave;
+
+        /// <summary>
+        /// Количество октав, которое рассчитывается для шума в каждой точке.
+        /// </summary>
+        private int octave;
+        /// <summary>
+        /// Количество октав, которое рассчитывается для шума в каждой точке.
+        /// </summary>
         public int Octave
         {
             get => octave;
@@ -52,8 +103,16 @@ namespace Noise.Perlin
                 octaveFactor = 2 - Math.Pow(persistence, octave - 1);
             }
         }
-        double persistence;
-        double Persistence
+
+        /// <summary>
+        /// Устойчивость к наложению октав. Больше величина - сильнее влияние октав.
+        /// </summary>
+        private double persistence;
+
+        /// <summary>
+        /// Устойчивость к наложению октав. Больше величина - сильнее влияние октав.
+        /// </summary>
+        private double Persistence
         {
             get => persistence; set
             {
@@ -62,9 +121,24 @@ namespace Noise.Perlin
             }
         }
 
-        double maxNoiseValue;
-        double octaveFactor;
-        private int k, j, l, m, n, dotFindingStep;
+        /// <summary>
+        /// Максимальное по модулю значение шума.
+        /// </summary>
+        private double maxNoiseValue;
+
+        /// <summary>
+        /// Фактор, показывающий кратное увеличение максимального значения шума после наложения всех октав.
+        /// </summary>
+        private double octaveFactor;
+
+        /// <summary>
+        /// Переменная - счётчик.
+        /// </summary>
+        private int k, j, l, dotFindingStep;
+
+        /// <summary>
+        /// Амплитуда текущей октавы шума.
+        /// </summary>
         private double amplitude;
 
         /// <summary>
@@ -98,24 +172,37 @@ namespace Noise.Perlin
             return a * (1 - x) + b * x;
         }
 
-        // x^2*(3-2x)
-        public static double SmoothStep(double t) => t * t * (3 - 2 * t);
+        /// <summary>
+        /// Сигмовидная функция интерполяции третьей степени.
+        /// </summary>
+        /// <param name="t">Координата интерполяции, лежащая в отрезке [0; 1]</param>
+        /// <returns>Результат интерполяции. Лежит в отрезке [0; 1].</returns>
+        static double SmoothStep(double t) => t * t * (3 - 2 * t);
 
-        // 6x^5 - 15x^4 + 10x^3
-        public static double SmootherStep(double t) => 6 * t * t * t * t * t - 15 * t * t * t * t + 10 * t * t * t;
+        /// <summary>
+        /// Сигмовидная функция интерполяции шестой степени.
+        /// </summary>
+        /// <param name="t">Координата интерполяции, лежащая в отрезке [0; 1].</param>
+        /// <returns>Результат интерполяции. Лежит в отрезке [0; 1].</returns>
+        static double QunticCurve(double t) => t * t * t * (t * (t * 6 - 15) + 10);
 
-        public static double QunticCurve(double t) => t * t * t * (t * (t * 6 - 15) + 10);
-
-        static void NormalizeVector(ref double[] vector)
+        /// <summary>
+        /// Метож нормализует вектор.
+        /// </summary>
+        /// <param name="vector">Нормализуемый вектор.</param>
+        void NormalizeVector(ref double[] vector)
         {
             double vectorLenght = 0;
-            for (byte i = 0; i < vector.Length; i++)
+            for (int i = 0; i < vector.Length; i++)
                 vectorLenght += vector[i] * vector[i];
             vectorLenght = Math.Sqrt(vectorLenght);
-            for (byte i = 0; i < vector.Length; i++)
+            for (int i = 0; i < vector.Length; i++)
                 vector[i] = vector[i] / vectorLenght;
         }
 
+        /// <summary>
+        /// Метод заполняет массив <c>magical</c> псведослучайными значениями для генерации градиентных векторов.
+        /// </summary>
         void FillMagicalArray()
         {
             var rnd = new Random(seed);
@@ -132,7 +219,7 @@ namespace Noise.Perlin
         /// <returns>Значение шума в заданных координатах. Находится в диапазоне [-1; 1].</returns>
         public double Noise(params double[] coords)
         {
-            res = 0;
+            result = 0;
             amplitude = 1;
             for (k = 0; k < octave; k++)
             {
@@ -178,14 +265,13 @@ namespace Noise.Perlin
                 }
 
                 // Применение шума в текущей октаве, подготовка к вычислению следующей октавы
-                res += dotProduct[0] * amplitude;
+                result += dotProduct[0] * amplitude;
                 amplitude *= persistence;
                 for (j = 0; j < dimension; j++)
                     coords[j] /= persistence;
 
             }
-            return res / octaveFactor / maxNoiseValue;
+            return result / octaveFactor / maxNoiseValue;
         }
-
     }
 }

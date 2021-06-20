@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PerlinFinNormalized.cs" />
+    <Compile Include="PerlinNormalized.cs" />
     <Compile Include="PerlinMultidimensional.cs" />
     <Compile Include="Perlin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

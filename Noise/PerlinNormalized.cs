@@ -5,15 +5,12 @@ using System.Text;
 
 namespace Noise.Perlin
 {
-    /// <summary>
-    /// Класс для генерации процедурного шума Перлина в одно-, дву-, трех- и четырехмерном пространстве.
-    /// </summary>
-    public class Perlin 
+    public class PerlinNormalized
     {
         #region Поля и свойства
 
         /// <summary>
-        /// Наименьшая координата вершины куба, в который вписана точка генерации шума.
+        /// Наименьшие координаты вершины куба, в который вписана точка генерации шума.
         /// </summary>
         private int left, top, zoom, time;
 
@@ -74,9 +71,14 @@ namespace Noise.Perlin
         public int Seed;
 
         /// <summary>
-        /// Таблица псевдослучайных длин векторов в диапазоне [0; 1].
+        /// Массив псевдослучайных нормализованных градиентных векторов.
         /// </summary>
-        private readonly double[] permutationTable;
+        private double[][] permutationVectors;
+
+        /// <summary>
+        /// Размерность пространства, к работе с которым подготовлен permutationVectors
+        /// </summary>
+        int preparedDimension;
 
         /// <summary>
         /// Количество октав, которое рассчитывается для шума в каждой точке.
@@ -116,27 +118,69 @@ namespace Noise.Perlin
         /// </summary>
         private double octaveFactor;
 
+        /// <summary>
+        /// Максимальное по модулю значение двумерного шума.
+        /// </summary>
+        private static readonly double max2dNoiseValue = 0.5 * Math.Sqrt(2);
+
+        /// <summary>
+        /// Максимальное по модулю значение трехмерного шума.
+        /// </summary>
+        private static readonly double max3dNoiseValue = 0.5 * Math.Sqrt(3);
+
+        /// <summary>
+        /// Максимальное по модулю значение четырехмерного шума.
+        /// </summary>
+        private static readonly double max4dNoiseValue = 0.5 * Math.Sqrt(4);
+
         #endregion
 
         /// <summary>
-        /// Инициализирует новый экземпляр класса <c>Perlin</c> с помощью указанных начальных значений.
+        /// Инициализирует новый экземпляр класса <c>PerlinNormalized</c> с помощью указанных начальных значений.
         /// </summary>
         /// <param name="seed">Семя генерации шума.</param>
         /// <param name="octave">Количество октав, которое рассчитывается для шума в каждой точке.</param>
         /// <param name="persistence">Устойчивость к наложению октав. Больше величина - сильнее влияние октав.</param>
-        public Perlin(int seed, int octave, double persistence = 0.5)
+        public PerlinNormalized(int seed, int octave, double persistence = 0.5)
         {
             this.Seed = seed;
             this.Octave = octave;
             this.Persistence = persistence;
 
             var rnd = new Random(seed);
-            permutationTable = new double[1024];
-            for (var i = 0; i < permutationTable.Length; i++)
-                permutationTable[i] = rnd.NextDouble() * 2 - 1;
+            permutationVectors = new double[1024][];
         }
 
-        #region Вспомогательные методы
+        /// <summary>
+        /// Метож нормализует вектор.
+        /// </summary>
+        /// <param name="vector">Нормализуемый вектор.</param>
+        void NormalizeVector(ref double[] vector)
+        {
+            double vectorLenght = 0;
+            for (int i = 0; i < vector.Length; i++)
+                vectorLenght += vector[i] * vector[i];
+            vectorLenght = Math.Sqrt(vectorLenght);
+            for (int i = 0; i < vector.Length; i++)
+                vector[i] = vector[i] / vectorLenght;
+        }
+
+        /// <summary>
+        /// Метод подготавливает массив псевдослучайных векторов <c>permutationVectors</c> для работы с пространством заданной размерности.
+        /// </summary>
+        /// <param name="dimension">Размерность пространства генерации шума.</param>
+        void PrepareDimension(int dimension)
+        {
+            var rnd = new Random(Seed);
+            for (int i = 0; i < permutationVectors.Length; i++)
+            {
+                permutationVectors[i] = new double[dimension];
+                for (int j = 0; j < permutationVectors[0].Length; j++)
+                    permutationVectors[i][j] = rnd.NextDouble() * 2 - 1;
+                NormalizeVector(ref permutationVectors[i]);
+            }
+            preparedDimension = dimension;
+        }
 
         /// <summary>
         /// Функция линейной интерполяции.
@@ -160,23 +204,22 @@ namespace Noise.Perlin
         /// <param name="t">Координата интерполяции, лежащая в отрезке [0; 1].</param>
         /// <returns>Результат интерполяции. Лежит в отрезке [0; 1].</returns>
         static double QunticCurve(double t) => t * t * t * (t * (t * 6 - 15) + 10);
-
-        /// <summary>
-        /// Функция Косинусной интерполяции.
-        /// </summary>
-        /// <param name="t">Координата интерполяции, лежащая в отрезке [0; 1].</param>
-        /// <param name="a">Значение функции в координате {0}.</param>
-        /// <param name="b">Значение функции в координате {1}.</param>
-        /// <returns>Результат интерполяции. Лежит в отрезке [0; 1].</returns>
         public static double CosineInterpolation(double x, double a, double b)
         {
             x = (1 - Math.Cos(x * Math.PI)) * 0.5;
             return a * (1 - x) + b * x;
         }
+        public static double CubicInterpolation(double v0, double v1, double v2, double v3, double x)
+        {
+            double P = (v3 - v2) - (v0 - v1);
+            double Q = (v0 - v1) - P;
+            double R = v2 - v0;
+            double S = v1;
 
-        #endregion
+            return P * x * 3 + Q * x * 2 + R * x + S;
+        }
 
-        #region Методы генерации шума
+        #region Функции генерации шума
 
         /// <summary>
         /// Функция генерации шума в одномерном пространстве.
@@ -199,10 +242,10 @@ namespace Noise.Perlin
                 c1 = Seed * magical1;
 
                 v = (int)(left * magical3);
-                ftx1 = permutationTable[v & 1023];
+                ftx1 = permutationVectors[v & 1023][0];
 
                 v = (int)(((left + 1) * magical3));
-                ftx2 = permutationTable[v & 1023];
+                ftx2 = permutationVectors[v & 1023][0];
                 // y = 2(a-b)x^4 - (3a-5b)x^3 - 3bx^2 + ax
                 result += (2 * (ftx1 - ftx2) * pointInQuadX * pointInQuadX * pointInQuadX * pointInQuadX
                     - (3 * ftx1 - 5 * ftx2) * pointInQuadX * pointInQuadX * pointInQuadX
@@ -224,6 +267,7 @@ namespace Noise.Perlin
         /// <returns>Значение шума в заданных координатах.</returns>
         public double Noise(double fx, double fy)
         {
+            if (preparedDimension != 2) PrepareDimension(2);
             result = 0;
             amplitude = 1;
             for (k = 0; k < octave; k++)
@@ -252,16 +296,16 @@ namespace Noise.Perlin
                 // 2. Используем найденные векторы от вершин квадрата до точки внутри квадрата.
                 // 3. Считаем скалярные произведения векторов между которыми будем интерполировать.
                 v = (int)(left * magical3 ^ top * magical5 ^ c1);
-                ftx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023];
+                ftx1 = pointInQuadX * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1];
 
                 v = (int)(((left + 1) * magical3) ^ top * magical5 ^ c1);
-                ftx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023];
+                ftx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1];
 
                 v = (int)(left * magical3 ^ ((top + 1) * magical5) ^ c1);
-                fbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023];
+                fbx1 = pointInQuadX * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1];
 
                 v = (int)(((left + 1) * magical3) ^ ((top + 1) * magical5) ^ c1);
-                fbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023];
+                fbx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1];
 
                 // Готовим параметры интерполяции, чтобы она не была линейной.
                 //QunticCurve = t * t * t * (t * (t * 6 - 15) + 10)
@@ -277,7 +321,7 @@ namespace Noise.Perlin
                 fx /= persistence;
                 fy /= persistence;
             }
-            return result / octaveFactor;
+            return result / octaveFactor / max2dNoiseValue;
         }
 
         /// <summary>
@@ -299,6 +343,7 @@ namespace Noise.Perlin
                     zbx1---------zbx2
             */
 
+            if (preparedDimension != 3) PrepareDimension(3);
             result = 0;
             amplitude = 1;
             for (k = 0; k < octave; k++)
@@ -323,43 +368,42 @@ namespace Noise.Perlin
                 c5 = top * magical5;
 
                 v = (int)(c2 ^ c5 ^ c4 ^ c1);
-                ftx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                       pointInQuadZ * permutationTable[(v * 3) & 1023];
+                ftx1 = pointInQuadX * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                       pointInQuadZ * permutationVectors[v & 1023][2];
 
                 v = (int)(((left + 1) * magical3) ^ c5 ^ c4 ^ c1);
-                ftx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                       pointInQuadZ * permutationTable[(v * 3) & 1023];
+                ftx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                       pointInQuadZ * permutationVectors[v & 1023][2];
 
                 v = (int)(c2 ^ ((top + 1) * magical5) ^ c4 ^ c1);
-                fbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                       pointInQuadZ * permutationTable[(v * 3) & 1023];
+                fbx1 = pointInQuadX * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                       pointInQuadZ * permutationVectors[v & 1023][2];
 
                 v = (int)(((left + 1) * magical3) ^ ((top + 1) * magical5) ^ c4 ^ c1);
-                fbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
-                       (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                       pointInQuadZ * permutationTable[(v * 3) & 1023];
+                fbx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] +
+                       (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                       pointInQuadZ * permutationVectors[v & 1023][2];
 
                 v = (int)(c2 ^ c5 ^ ((zoom + 1) * magical4) ^ c1);
-                ztx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                       (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023];
+                ztx1 = pointInQuadX * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                       (pointInQuadZ - 1) * permutationVectors[v & 1023][2];
 
                 v = (int)(((left + 1) * magical3) ^ c5 ^ ((zoom + 1) * magical4) ^ c1);
-                ztx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                       (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023];
+                ztx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                       (pointInQuadZ - 1) * permutationVectors[v & 1023][2];
 
                 v = (int)(c2 ^ ((top + 1) * magical5) ^ ((zoom + 1) * magical4) ^ c1);
-                zbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                       (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023];
+                zbx1 = pointInQuadX * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                       (pointInQuadZ - 1) * permutationVectors[v & 1023][2];
 
                 v = (int)(((left + 1) * magical3) ^ ((top + 1) * magical5) ^ ((zoom + 1) * magical4) ^ c1);
-                zbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
-                       (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                       (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023];
+                zbx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                       (pointInQuadZ - 1) * permutationVectors[v & 1023][2];
 
                 pointInQuadX = pointInQuadX * pointInQuadX * pointInQuadX * (pointInQuadX * (pointInQuadX * 6 - 15) + 10);
                 pointInQuadY = pointInQuadY * pointInQuadY * pointInQuadY * (pointInQuadY * (pointInQuadY * 6 - 15) + 10);
                 pointInQuadZ = pointInQuadZ * pointInQuadZ * pointInQuadZ * (pointInQuadZ * (pointInQuadZ * 6 - 15) + 10);
-                       
+
                 result += Lerp(pointInQuadZ,
                     Lerp(pointInQuadY, Lerp(pointInQuadX, ftx1, ftx2), Lerp(pointInQuadX, fbx1, fbx2)),
                     Lerp(pointInQuadY, Lerp(pointInQuadX, ztx1, ztx2), Lerp(pointInQuadX, zbx1, zbx2)))
@@ -370,7 +414,7 @@ namespace Noise.Perlin
                 fy /= persistence;
                 fz /= persistence;
             }
-            return result / octaveFactor;
+            return result / octaveFactor / max3dNoiseValue;
         }
 
         /// <summary>
@@ -385,6 +429,7 @@ namespace Noise.Perlin
         {
             result = 0;
             amplitude = 1;
+            if (preparedDimension != 4) PrepareDimension(4);
             for (k = 0; k < octave; k++)
             {
                 #region
@@ -409,89 +454,89 @@ namespace Noise.Perlin
                 c5 = top * magical5;
 
                 v = (int)(c2 ^ c5 ^ c4 ^ c3 ^ c1);
-                ftx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                       pointInQuadZ * permutationTable[(v * 3) & 1023] + pointInQuadT * permutationTable[(v * 4) & 1023];
+                ftx1 = pointInQuadX * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                       pointInQuadZ * permutationVectors[v & 1023][2] +pointInQuadT * permutationVectors[v & 1023][3];
 
                 v = (int)(((left + 1) * magical3) ^ c5 ^ c4 ^ c3 ^ c1);
-                ftx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                       pointInQuadZ * permutationTable[(v * 3) & 1023] +
-                       pointInQuadT * permutationTable[(v * 4) & 1023];
+                ftx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                       pointInQuadZ * permutationVectors[v & 1023][2] +
+                       pointInQuadT * permutationVectors[v & 1023][3];
 
                 v = (int)(c2 ^ ((top + 1) * magical5) ^ c4 ^ c3 ^ c1);
-                fbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                       pointInQuadZ * permutationTable[(v * 3) & 1023] +
-                       pointInQuadT * permutationTable[(v * 4) & 1023];
+                fbx1 = pointInQuadX * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                       pointInQuadZ * permutationVectors[v & 1023][2] +
+                       pointInQuadT * permutationVectors[v & 1023][3];
 
                 v = (int)(((left + 1) * magical3) ^ ((top + 1) * magical5) ^ c4 ^ c3 ^ c1);
-                fbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
-                       (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                       pointInQuadZ * permutationTable[(v * 3) & 1023] +
-                       pointInQuadT * permutationTable[(v * 4) & 1023];
+                fbx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] +
+                       (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                       pointInQuadZ * permutationVectors[v & 1023][2] +
+                       pointInQuadT * permutationVectors[v & 1023][3];
 
                 v = (int)(c2 ^ c5 ^ ((zoom + 1) * magical4) ^ c3 ^ c1);
-                ztx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                       (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023] +
-                       pointInQuadT * permutationTable[(v * 4) & 1023];
+                ztx1 = pointInQuadX * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                       (pointInQuadZ - 1) * permutationVectors[v & 1023][2] +
+                       pointInQuadT * permutationVectors[v & 1023][3];
 
                 v = (int)(((left + 1) * magical3) ^ c5 ^ ((zoom + 1) * magical4) ^ c3 ^ c1);
-                ztx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                       (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023] +
-                       pointInQuadT * permutationTable[(v * 4) & 1023];
+                ztx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                       (pointInQuadZ - 1) * permutationVectors[v & 1023][2] +
+                       pointInQuadT * permutationVectors[v & 1023][3];
 
                 v = (int)(c2 ^ ((top + 1) * magical5) ^ ((zoom + 1) * magical4) ^ c3 ^ c1);
-                zbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                       (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023] +
-                       pointInQuadT * permutationTable[(v * 4) & 1023];
+                zbx1 = pointInQuadX * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                       (pointInQuadZ - 1) * permutationVectors[v & 1023][2] +
+                       pointInQuadT * permutationVectors[v & 1023][3];
 
                 v = (int)(((left + 1) * magical3) ^ ((top + 1) * magical5) ^ ((zoom + 1) * magical4) ^ c3 ^ c1);
-                zbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
-                       (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                       (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023] +
-                       pointInQuadT * permutationTable[(v * 4) & 1023];
+                zbx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] +
+                       (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                       (pointInQuadZ - 1) * permutationVectors[v & 1023][2] +
+                       pointInQuadT * permutationVectors[v & 1023][3];
 
                 ///
 
                 v = (int)(c2 ^ c5 ^ c4 ^ ((time + 1) * magical6) ^ c1);
-                tftx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                        pointInQuadZ * permutationTable[(v * 3) & 1023] +
-                        (pointInQuadT - 1) * permutationTable[(v * 4) & 1023];
+                tftx1 = pointInQuadX * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                        pointInQuadZ * permutationVectors[v & 1023][2] +
+                        (pointInQuadT - 1) * permutationVectors[v & 1023][3];
 
                 v = (int)(((left + 1) * magical3) ^ c5 ^ c4 ^ ((time + 1) * magical6) ^ c1);
-                tftx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                        pointInQuadZ * permutationTable[(v * 3) & 1023] +
-                        (pointInQuadT - 1) * permutationTable[(v * 4) & 1023];
+                tftx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                        pointInQuadZ * permutationVectors[v & 1023][2] +
+                        (pointInQuadT - 1) * permutationVectors[v & 1023][3];
 
                 v = (int)(c2 ^ ((top + 1) * magical5) ^ c4 ^ ((time + 1) * magical6) ^ c1);
-                tfbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                        pointInQuadZ * permutationTable[(v * 3) & 1023] +
-                        (pointInQuadT - 1) * permutationTable[(v * 4) & 1023];
+                tfbx1 = pointInQuadX * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                        pointInQuadZ * permutationVectors[v & 1023][2] +
+                        (pointInQuadT - 1) * permutationVectors[v & 1023][3];
 
                 v = (int)(((left + 1) * magical3) ^ ((top + 1) * magical5) ^ c4 ^ ((time + 1) * magical6) ^ c1);
-                tfbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
-                        (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                        pointInQuadZ * permutationTable[(v * 3) & 1023] +
-                        (pointInQuadT - 1) * permutationTable[(v * 4) & 1023];
+                tfbx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] +
+                        (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                        pointInQuadZ * permutationVectors[v & 1023][2] +
+                        (pointInQuadT - 1) * permutationVectors[v & 1023][3];
 
                 v = (int)(c2 ^ c5 ^ ((zoom + 1) * magical4) ^ ((time + 1) * magical6) ^ c1);
-                tztx1 = pointInQuadX * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                        (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023] +
-                        (pointInQuadT - 1) * permutationTable[(v * 4) & 1023];
+                tztx1 = pointInQuadX * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                        (pointInQuadZ - 1) * permutationVectors[v & 1023][2] +
+                        (pointInQuadT - 1) * permutationVectors[v & 1023][3];
 
                 v = (int)(((left + 1) * magical3) ^ c5 ^ ((zoom + 1) * magical4) ^ ((time + 1) * magical6) ^ c1);
-                tztx2 = (pointInQuadX - 1) * permutationTable[v & 1023] + pointInQuadY * permutationTable[(v * 2) & 1023] +
-                        (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023] +
-                        (pointInQuadT - 1) * permutationTable[(v * 4) & 1023];
+                tztx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] + pointInQuadY * permutationVectors[v & 1023][1] +
+                        (pointInQuadZ - 1) * permutationVectors[v & 1023][2] +
+                        (pointInQuadT - 1) * permutationVectors[v & 1023][3];
 
                 v = (int)(c2 ^ ((top + 1) * magical5) ^ ((zoom + 1) * magical4) ^ ((time + 1) * magical6) ^ c1);
-                tzbx1 = pointInQuadX * permutationTable[v & 1023] + (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                        (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023] +
-                        (pointInQuadT - 1) * permutationTable[(v * 4) & 1023];
+                tzbx1 = pointInQuadX * permutationVectors[v & 1023][0] + (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                        (pointInQuadZ - 1) * permutationVectors[v & 1023][2] +
+                        (pointInQuadT - 1) * permutationVectors[v & 1023][3];
 
                 v = (int)(((left + 1) * magical3) ^ ((top + 1) * magical5) ^ ((zoom + 1) * magical4) ^ ((time + 1) * magical6) ^ c1);
-                tzbx2 = (pointInQuadX - 1) * permutationTable[v & 1023] +
-                        (pointInQuadY - 1) * permutationTable[(v * 2) & 1023] +
-                        (pointInQuadZ - 1) * permutationTable[(v * 3) & 1023] +
-                        (pointInQuadT - 1) * permutationTable[(v * 4) & 1023];
+                tzbx2 = (pointInQuadX - 1) * permutationVectors[v & 1023][0] +
+                        (pointInQuadY - 1) * permutationVectors[v & 1023][1] +
+                        (pointInQuadZ - 1) * permutationVectors[v & 1023][2] +
+                        (pointInQuadT - 1) * permutationVectors[v & 1023][3];
 
                 pointInQuadX = pointInQuadX * pointInQuadX * pointInQuadX * (pointInQuadX * (pointInQuadX * 6 - 15) + 10);
                 pointInQuadY = pointInQuadY * pointInQuadY * pointInQuadY * (pointInQuadY * (pointInQuadY * 6 - 15) + 10);
@@ -513,7 +558,7 @@ namespace Noise.Perlin
                 fz /= persistence;
                 ft /= persistence;
             }
-            return result / octaveFactor;
+            return result / octaveFactor / max4dNoiseValue;
         }
 
         #endregion

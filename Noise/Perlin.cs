@@ -71,12 +71,25 @@ namespace Noise.Perlin
         /// <summary>
         /// Семя генерации шума.
         /// </summary>
-        public int Seed;
+        private int seed;
+        /// <summary>
+        /// Семя генерации шума.
+        /// </summary>
+        public int Seed
+        {
+            get => seed;
+            set
+            {
+                if (seed == value) return;
+                seed = value;
+                PreparePermutationTable();
+            }
+        }
 
         /// <summary>
         /// Таблица псевдослучайных длин векторов в диапазоне [0; 1].
         /// </summary>
-        private readonly double[] permutationTable;
+        private double[] permutationTable;
 
         /// <summary>
         /// Количество октав, которое рассчитывается для шума в каждой точке.
@@ -129,14 +142,21 @@ namespace Noise.Perlin
             this.Seed = seed;
             this.Octave = octave;
             this.Persistence = persistence;
+            PreparePermutationTable();
+        }
 
+        #region Вспомогательные методы
+
+        /// <summary>
+        /// Заполняет <c>permutationTable</c> псевдослучайными величинами согласно <c>seed</c> генерации.
+        /// </summary>
+        private void PreparePermutationTable()
+        {
             var rnd = new Random(seed);
             permutationTable = new double[1024];
             for (var i = 0; i < permutationTable.Length; i++)
                 permutationTable[i] = rnd.NextDouble() * 2 - 1;
         }
-
-        #region Вспомогательные методы
 
         /// <summary>
         /// Функция линейной интерполяции.
@@ -198,10 +218,10 @@ namespace Noise.Perlin
 
                 c1 = Seed * magical1;
 
-                v = (int)(left * magical3);
+                v = (int)(left * magical3 ^ c1);
                 ftx1 = permutationTable[v & 1023];
 
-                v = (int)(((left + 1) * magical3));
+                v = (int)(((left + 1) * magical3) ^ c1);
                 ftx2 = permutationTable[v & 1023];
                 // y = 2(a-b)x^4 - (3a-5b)x^3 - 3bx^2 + ax
                 result += (2 * (ftx1 - ftx2) * pointInQuadX * pointInQuadX * pointInQuadX * pointInQuadX

@@ -31,6 +31,10 @@ namespace MapGenerator
         Landscape,
         BaseTemperature,
         ModeTemperature,
+        Island,
+        Cloud,
+        Fire,
+        Water,
     }
 
     /// <summary>
@@ -39,6 +43,8 @@ namespace MapGenerator
     public static class MapGenerator
     {
         const double TAU = 2 * Math.PI;
+
+        static Perlin perlin = new Perlin(0, 1);
 
         /// <summary>
         /// Таймер для замера двительности генерации карты.
@@ -106,7 +112,10 @@ namespace MapGenerator
         int octaves, double persistence)
         {
             var map = new double[size * size];
-            var perlin = new Perlin(seed, octaves, persistence);
+            //var perlin = new Perlin(seed, octaves, persistence);
+            perlin.Seed = seed;
+            perlin.Octave = octaves;
+            perlin.Persistence = persistence;
             int halfSize = (int)(size / 2);
             int yValue;
             stopwatch.Start();
@@ -154,7 +163,10 @@ namespace MapGenerator
         int octaves, double persistence)
         {
             var map = new double[size * size];
-            var perlin = new Perlin(seed, octaves, persistence);
+            //var perlin = new Perlin(seed, octaves, persistence);
+            perlin.Seed = seed;
+            perlin.Octave = octaves;
+            perlin.Persistence = persistence;
             stopwatch.Start();
             for (y = 0; y < size; y++)
             {
@@ -192,7 +204,10 @@ namespace MapGenerator
         int octaves, double persistence)
         {
             var map = new double[size * size];
-            var perlin = new Perlin(seed, octaves, persistence);
+            //var perlin = new Perlin(seed, octaves, persistence);
+            perlin.Seed = seed;
+            perlin.Octave = octaves;
+            perlin.Persistence = persistence;
             stopwatch.Start();
             lenght = size / scale; // Длина окружности, сечения тородида
             radius = lenght / TAU; // Радиус окружности, сечения тороида
@@ -231,7 +246,10 @@ namespace MapGenerator
         int octaves, double persistence)
         {
             var map = new double[size * size];
-            var perlin = new Perlin(seed, octaves, persistence);
+            //var perlin = new Perlin(seed, octaves, persistence);
+            perlin.Seed = seed;
+            perlin.Octave = octaves;
+            perlin.Persistence = persistence;
             stopwatch.Start();
             lenght = size / scale; // Длина окружности, сечения тородида
             radius = lenght / TAU; // Радиус окружности, сечения тороида
@@ -271,7 +289,10 @@ namespace MapGenerator
         int octaves, double persistence)
         {
             var map = new double[size * size];
-            var perlin = new Perlin(seed, octaves, persistence);
+            //var perlin = new Perlin(seed, octaves, persistence);
+            perlin.Seed = seed;
+            perlin.Octave = octaves;
+            perlin.Persistence = persistence;
             stopwatch.Start();
             lenght = size / scale; // Длина окружности, сечения тородида.
             radius = lenght / TAU; // Радиус окружности, сечения тороида.
@@ -318,7 +339,10 @@ namespace MapGenerator
         int octaves, double persistence)
         {
             var map = new double[size * size];
-            var perlin = new Perlin(seed, octaves, persistence);
+            //var perlin = new Perlin(seed, octaves, persistence);
+            perlin.Seed = seed;
+            perlin.Octave = octaves;
+            perlin.Persistence = persistence;
             stopwatch.Start();
             lenght = size / scale; // Длина окружности, сечения тородида
             radius = lenght / TAU; // Радиус окружности, сечения тороида
@@ -366,7 +390,10 @@ namespace MapGenerator
         int octaves, double persistence)
         {
             var map = new double[size * size];
-            var perlin = new Perlin(seed, octaves, persistence);
+            //var perlin = new Perlin(seed, octaves, persistence);
+            perlin.Seed = seed;
+            perlin.Octave = octaves;
+            perlin.Persistence = persistence;
             stopwatch.Start();
             lenght = size / scale; // Длина окружности, сечения тородида
             radius = lenght / TAU; // Радиус окружности, сечения тороида

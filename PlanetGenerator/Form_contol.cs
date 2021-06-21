@@ -81,6 +81,9 @@ namespace MapGenerator
             ["Карта высот"] = ShowedMapType.Landscape,
             ["Карта базовых температур"] = ShowedMapType.BaseTemperature,
             ["Карта модифицированных температур"] = ShowedMapType.ModeTemperature,
+            ["Карта облаков"] = ShowedMapType.Cloud,
+            ["Голубая карта шумов"] = ShowedMapType.Water,
+            //["Карта огня"] = ShowedMapType.Fire,
         };
 
         void Form_contol_Load(object sender, EventArgs e)
@@ -123,53 +126,81 @@ namespace MapGenerator
         }
         void Visualize(ShowedMapType showedMapType)
         {
+            index = 0;
             switch (showedMapType)
             {
                 case ShowedMapType.Noise: // Карта шума Перлина
                     {
                         int color;
-                        for (var x = 0; x < mapSize; x++)
-                            for (var y = 0; y < mapSize; y++)
+                        for (var y = 0; y < mapSize; y++)
+                            for (var x = 0; x < mapSize; x++)
                             {
                                 index = x + y * mapSize;
                                 if (double.IsNaN(NoiseMap[index])) return;
                                 color = (byte)(NoiseMap[index] * 255);
                                 form_grid.DrawCell(x, y, Color.FromArgb(color, color, color));
-
-                            }
+                            }                        
                         break;
                     }
                 case ShowedMapType.Landscape: // Карта высот
                     {
-                        for (var x = 0; x < mapSize; x++)
-                            for (var y = 0; y < mapSize; y++)
+                        for (var y = 0; y < mapSize; y++)
+                            for (var x = 0; x < mapSize; x++)
                             {
                                 index = x + y * mapSize;
                                 form_grid.DrawCell(x, y, GetHeightColor(HeightMap[index]));
-                            }
-
+                            }                        
                         break;
                     }
                 case ShowedMapType.BaseTemperature: // Карта температур по умолчанию
                     {
-                        for (var x = 0; x < mapSize; x++)
-                            for (var y = 0; y < mapSize; y++)
+                        for (var y = 0; y < mapSize; y++)
+                            for (var x = 0; x < mapSize; x++)
                             {
                                 index = x + y * mapSize;
                                 form_grid.DrawCell(x, y, GetTemperatureColor(BaseTemperatureMap[index]));
-                            }
-
+                            }                        
                         break;
                     }
-                case ShowedMapType.ModeTemperature: // Карта температур
+                case ShowedMapType.ModeTemperature: // Карта модифицированных температур
                     {
-                        for (var x = 0; x < mapSize; x++)
-                            for (var y = 0; y < mapSize; y++)
+                        for (var y = 0; y < mapSize; y++)
+                            for (var x = 0; x < mapSize; x++)
                             {
                                 index = x + y * mapSize;
                                 form_grid.DrawCell(x, y, GetTemperatureColor(ModeTemperatureMap[index]));
+                                index++;
                             }
-
+                        break;
+                    }
+                case ShowedMapType.Cloud: // Карта облаков
+                    {
+                        int color;
+                        for (var y = 0; y < mapSize; y++)
+                            for (var x = 0; x < mapSize; x++)
+                            {
+                                index = x + y * mapSize;
+                                if (double.IsNaN(NoiseMap[index])) return;
+                                color = (int)((NoiseMap[index] - 0.5) * 255 * 2);
+                                if (color < 0) color = 0;
+                                else color = (byte)color;
+                                form_grid.DrawCell(x, y, Color.FromArgb(color, color, color));
+                                index++;
+                            }
+                        break;
+                    }
+                case ShowedMapType.Water: // Карта облаков
+                    {
+                        int color;
+                        for (var y = 0; y < mapSize; y++)
+                            for (var x = 0; x < mapSize; x++)
+                            {
+                                index = x + y * mapSize;
+                                if (double.IsNaN(NoiseMap[index])) return;
+                                color = (byte)(60 + NoiseMap[index] * 195);
+                                form_grid.DrawCell(x, y, Color.FromArgb((int)(color * 0.4), (int)(color * 0.6), color));
+                                index++;
+                            }
                         break;
                     }
             }
@@ -279,11 +310,15 @@ namespace MapGenerator
         {
             switch (showedMapType)
             {
+                case ShowedMapType.Water:
+                case ShowedMapType.Fire:
+                case ShowedMapType.Cloud:
                 case ShowedMapType.Noise: // Если выбрана карта шумов.
                     {
                         PrepareNoiseMap(noiseMapType);
                         break;
                     }
+                case ShowedMapType.Island:
                 case ShowedMapType.Landscape: // Если выбрана карта высот.
                     {
                         PrepareNoiseMap(noiseMapType);

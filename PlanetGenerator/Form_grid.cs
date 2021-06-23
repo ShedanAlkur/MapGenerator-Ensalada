@@ -6,6 +6,7 @@ namespace MapGenerator
 {
     public partial class Form_grid : Form
     {
+        private SaveFileDialog saveFileDialog = new SaveFileDialog();
         private readonly Pen pen = new Pen(Color.Black, 1);
         private Bitmap bmp;
         private Graphics canvas, bmpG;
@@ -26,6 +27,11 @@ namespace MapGenerator
             canvas = PanelCanvas.CreateGraphics();
             SetCanvasSize(cellSize, mapSize);
             //DrawGrid();
+
+            saveFileDialog.DefaultExt = "*.bmp";
+            saveFileDialog.FileName = "New image";
+            saveFileDialog.AddExtension = false;
+            saveFileDialog.Filter = "(*.bmp)|*.bmp|(*.*)|*.*";
         }
 
         public void DrawGrid()
@@ -79,6 +85,12 @@ namespace MapGenerator
         private void panel2_MouseLeave(object sender, EventArgs e)
         {
             lbl_coord.Text = "label";
+        }
+
+        private void lbl_save_Click(object sender, EventArgs e)
+        {
+            if (saveFileDialog.ShowDialog() == DialogResult.Cancel) return;
+            bmp.Save(saveFileDialog.FileName);
         }
 
         private void panel2_MouseDown(object sender, MouseEventArgs e)

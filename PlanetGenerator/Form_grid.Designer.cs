@@ -36,6 +36,7 @@
             this.lbl_height = new System.Windows.Forms.ToolStripStatusLabel();
             this.lbl_baseTemp = new System.Windows.Forms.ToolStripStatusLabel();
             this.lbl_modeTemp = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lbl_save = new System.Windows.Forms.ToolStripStatusLabel();
             this.PanelForCanvas.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -66,48 +67,61 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.lbl_save,
             this.lbl_coord,
             this.lbl_noise,
             this.lbl_height,
             this.lbl_baseTemp,
             this.lbl_modeTemp});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 741);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 739);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(743, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(743, 24);
             this.statusStrip1.TabIndex = 3;
             this.statusStrip1.Text = "statusStrip1";
             // 
-            // coord
+            // lbl_coord
             // 
-            this.lbl_coord.Name = "coord";
-            this.lbl_coord.Size = new System.Drawing.Size(32, 17);
+            this.lbl_coord.Name = "lbl_coord";
+            this.lbl_coord.Size = new System.Drawing.Size(32, 19);
             this.lbl_coord.Text = "label";
             // 
             // lbl_noise
             // 
             this.lbl_noise.BackColor = System.Drawing.SystemColors.ControlLight;
             this.lbl_noise.Name = "lbl_noise";
-            this.lbl_noise.Size = new System.Drawing.Size(35, 17);
+            this.lbl_noise.Size = new System.Drawing.Size(35, 19);
             this.lbl_noise.Text = "noise";
             // 
             // lbl_height
             // 
             this.lbl_height.Name = "lbl_height";
-            this.lbl_height.Size = new System.Drawing.Size(41, 17);
+            this.lbl_height.Size = new System.Drawing.Size(41, 19);
             this.lbl_height.Text = "height";
             // 
             // lbl_baseTemp
             // 
             this.lbl_baseTemp.BackColor = System.Drawing.SystemColors.ControlLight;
             this.lbl_baseTemp.Name = "lbl_baseTemp";
-            this.lbl_baseTemp.Size = new System.Drawing.Size(62, 17);
+            this.lbl_baseTemp.Size = new System.Drawing.Size(62, 19);
             this.lbl_baseTemp.Text = "baseTemp";
             // 
             // lbl_modeTemp
             // 
             this.lbl_modeTemp.Name = "lbl_modeTemp";
-            this.lbl_modeTemp.Size = new System.Drawing.Size(69, 17);
+            this.lbl_modeTemp.Size = new System.Drawing.Size(69, 19);
             this.lbl_modeTemp.Text = "modeTemp";
+            // 
+            // lbl_save
+            // 
+            this.lbl_save.BackColor = System.Drawing.SystemColors.ControlLight;
+            this.lbl_save.BorderSides = ((System.Windows.Forms.ToolStripStatusLabelBorderSides)((((System.Windows.Forms.ToolStripStatusLabelBorderSides.Left | System.Windows.Forms.ToolStripStatusLabelBorderSides.Top) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Right) 
+            | System.Windows.Forms.ToolStripStatusLabelBorderSides.Bottom)));
+            this.lbl_save.BorderStyle = System.Windows.Forms.Border3DStyle.Raised;
+            this.lbl_save.Name = "lbl_save";
+            this.lbl_save.Size = new System.Drawing.Size(69, 19);
+            this.lbl_save.Text = "Сохранить";
+            this.lbl_save.Click += new System.EventHandler(this.lbl_save_Click);
             // 
             // Form_grid
             // 
@@ -138,6 +152,7 @@
         private System.Windows.Forms.ToolStripStatusLabel lbl_height;
         private System.Windows.Forms.ToolStripStatusLabel lbl_baseTemp;
         private System.Windows.Forms.ToolStripStatusLabel lbl_modeTemp;
+        private System.Windows.Forms.ToolStripStatusLabel lbl_save;
     }
 }
 

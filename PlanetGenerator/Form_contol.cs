@@ -8,24 +8,53 @@ namespace MapGenerator
 {
     public partial class Form_contol : Form
     {
-        private Form_grid form_grid; // Окно для визуализации всех клеток карты.
+        /// <summary>
+        /// Форма для визуализации клеток карты.
+        /// </summary>
+        private Form_grid form_grid; 
 
+        /// <summary>
+        /// Рассматриваемый индекс обрабатываемой карты. Используется в счетчиках.
+        /// </summary>
         private int index;
-        private int seed; // Сохраненное семя генерации.
-        private int mapSize; // Сохраненный размер (ширина) карты
 
+        /// <summary>
+        /// Сохраненное семя генерации шума.
+        /// </summary>
+        private int seed;
+
+        /// <summary>
+        /// Сохраненный размер карты <c>mapSize</c>*<c>mapSize</c> в клетках <c>cellSize</c>.
+        /// </summary>
+        private int mapSize;
+
+        /// <summary>
+        /// Картк шумов Пердина.
+        /// </summary>
         public double[] NoiseMap;
-        public bool noiseMapIsReady; // Готовность карты шумов.
+        /// <summary>
+        /// Флаг готовности карты шумов.
+        /// </summary>
+        public bool noiseMapIsReady;
+        /// <summary>
+        /// Флаг готовности карты шумов.
+        /// </summary>
         public bool NoiseMapIsReady
         {
             get => noiseMapIsReady;
             set { noiseMapIsReady = value; HeightMapIsReady = false; }
         }
 
+        /// <summary>
+        /// Карта высот.
+        /// </summary>
         public int[] HeightMap;
+        /// <summary>
+        /// Флаг готовности карты высот.
+        /// </summary>
         public bool heightMapIsReady;
         /// <summary>
-        /// Готовность карты высот к отображению.
+        /// Флаг готовности карты высот.
         /// </summary>
         public bool HeightMapIsReady
         {
@@ -33,10 +62,16 @@ namespace MapGenerator
             set { heightMapIsReady = value; ModeTemperatureMapIsReady = false; }
         }
 
+        /// <summary>
+        /// Карта начальных температур.
+        /// </summary>
         public int[] BaseTemperatureMap;
+        /// <summary>
+        /// Флаг готовности карты начальных температур.
+        /// </summary>
         public bool baseTemperatureMapIsReady;
         /// <summary>
-        /// Готовность карты начальных температур к отображению
+        /// Флаг готовности карты начальных температур.
         /// </summary>
         public bool BaseTemperatureMapIsReady
         {
@@ -44,10 +79,16 @@ namespace MapGenerator
             set { baseTemperatureMapIsReady = value; ModeTemperatureMapIsReady = false; }
         }
 
+        /// <summary>
+        /// Карта модифицированных температур.
+        /// </summary>
         public int[] ModeTemperatureMap;
+        /// <summary>
+        /// Флаг готовности карты модифицированных температур.
+        /// </summary>
         public bool modeTemperatureMapIsReady;
         /// <summary>
-        /// Готовность карты итоговых температур к отображению
+        /// Флаг готовности карты модифицированных температур.
         /// </summary>
         public bool ModeTemperatureMapIsReady
         {
@@ -60,6 +101,9 @@ namespace MapGenerator
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Словарь отображаемых названий генерируемых карт шумов по типам <c>NoiseMapType</c>.
+        /// </summary>
         readonly Dictionary<string, NoiseMapType> DictNoiseMapType = new Dictionary<string, NoiseMapType>()
         {
             //["Тестовый шум А"] = NoiseMapType.testedA,
@@ -75,6 +119,9 @@ namespace MapGenerator
             ["domainWarped3D"] = NoiseMapType.domainWarped3d,
         };
 
+        /// <summary>
+        /// Словарь отображаемых названий визуализируемых карт шумов по типам <c>ShowedMapType</c>.
+        /// </summary>
         readonly Dictionary<string, ShowedMapType> DictShowedMapType = new Dictionary<string, ShowedMapType>()
         {
             ["Карта шумов"] = ShowedMapType.Noise,
@@ -108,6 +155,9 @@ namespace MapGenerator
             Visualize();
         }
 
+        /// <summary>
+        /// Сбрасывает все флаги готовности карт в <c>False</c>.
+        /// </summary>
         void ResetMapFlags()
         {
             noiseMapIsReady = false;
@@ -116,14 +166,21 @@ namespace MapGenerator
             modeTemperatureMapIsReady = false;
         }
 
+        /// <summary>
+        /// Визуализирует выбранную в <c>cb_map</c> карту в <c>form_grid</c>.
+        /// </summary>
         void Visualize()
         {
             try
             {
                 Visualize(DictShowedMapType[cb_map.Text]);
             }
-            catch (Exception _){ }
+            catch (System.Collections.Generic.KeyNotFoundException _){ }
         }
+        /// <summary>
+        /// Визуализирует выбранную карту в <c>form_grid</c>.
+        /// </summary>
+        /// <param name="showedMapType">Типа визуализируемой карты.</param>
         void Visualize(ShowedMapType showedMapType)
         {
             index = 0;
@@ -204,10 +261,13 @@ namespace MapGenerator
                         break;
                     }
             }
-            //form_grid.DrawGrid();
             form_grid.Redraw();
         }
 
+        /// <summary>
+        /// Генерирует выбранную в карту шумов.
+        /// </summary>
+        /// <param name="noiseMapType">Тип генерируемой карты шумов.</param>
         void PrepareNoiseMap(NoiseMapType noiseMapType)
         {
             if (NoiseMapIsReady) return;
@@ -256,6 +316,10 @@ namespace MapGenerator
             }
             NoiseMapIsReady = true;
         }
+
+        /// <summary>
+        /// Подготавливает карту высот <c>HeightMap</c> к визуализации.
+        /// </summary>
         void PrepareHeightMap()
         {
             if (!HeightMapIsReady)
@@ -267,22 +331,28 @@ namespace MapGenerator
                 HeightMapIsReady = true;
             }
         }
+
+        /// <summary>
+        /// Подготавливает карту базовых температур <c>BaseTemperatureMap</c> к визуализации.
+        /// </summary>
         void PrepareBaseTemperatureMap()
         {
             if (!BaseTemperatureMapIsReady)
             {
-                //BaseTemperatureMap = new int[(int)num_mapSize.Value * (int)num_mapSize.Value];
                 BaseTemperatureMap = MapGenerator.BaseTemperatureMap(mapSize,
                     (int)num_temp.Value + 273,
                     (double)num_divisor.Value, (double)num_tempExp.Value, (double)num_equator.Value);
                 BaseTemperatureMapIsReady = true;
             }
         }
+
+        /// <summary>
+        /// Подготавливает карту модифицированных температур <c>ModeTemperatureMap</c> к визуализации.
+        /// </summary>
         void PrepareModeTemperatureMap()
         {
             if (!ModeTemperatureMapIsReady)
             {
-                //ModeTemperatureMap = new int[(int)num_mapSize.Value * (int)num_mapSize.Value];
                 ModeTemperatureMap = MapGenerator.ModeTemperatureMap(BaseTemperatureMap, HeightMap,
                     (double)num_reduction.Value);
                 ModeTemperatureMapIsReady = true;
@@ -505,6 +575,9 @@ namespace MapGenerator
 
         #region Словари цветов.
 
+        /// <summary>
+        /// Словарь цветов для карты высот.
+        /// </summary>
         private readonly Dictionary<int, Color> HeightColors = new Dictionary<int, Color>
         {
             [-60000] = Color.FromArgb(101, 170, 211),
@@ -521,6 +594,9 @@ namespace MapGenerator
             [5000] = Color.FromArgb(181, 44, 2)
         };
 
+        /// <summary>
+        /// Словарь цветов для карты температур.
+        /// </summary>
         private readonly Dictionary<int, Color> TemperatureColor = new Dictionary<int, Color>
         {
             [0] = Color.FromArgb(81, 113, 198),
@@ -542,6 +618,9 @@ namespace MapGenerator
             [333] = Color.FromArgb(255, 28, 20)
         };
 
+        /// <summary>
+        /// Словарь цветов для карты осадков.
+        /// </summary>
         private readonly Dictionary<int, Color> RainFallColor = new Dictionary<int, Color>
         {
             [0] = Color.FromArgb(243, 170, 91),

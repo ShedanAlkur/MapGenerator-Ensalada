@@ -60,9 +60,8 @@
             this.PanelCanvas.Size = new System.Drawing.Size(712, 712);
             this.PanelCanvas.TabIndex = 1;
             this.PanelCanvas.Paint += new System.Windows.Forms.PaintEventHandler(this.CanvasPanel_Paint);
-            this.PanelCanvas.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseDown);
-            this.PanelCanvas.MouseLeave += new System.EventHandler(this.panel2_MouseLeave);
-            this.PanelCanvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panel2_MouseMove);
+            this.PanelCanvas.MouseLeave += new System.EventHandler(this.panelCanvas_MouseLeave);
+            this.PanelCanvas.MouseMove += new System.Windows.Forms.MouseEventHandler(this.panelCanvas_MouseMove);
             // 
             // statusStrip1
             // 

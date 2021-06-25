@@ -137,7 +137,6 @@ namespace MapGenerator
                 map[(halfSize - halfSize / 2) * size + x] = 0.25;
                 map[(halfSize + halfSize / 2) * size + x] = 0.5;
                 yValue = (int)(perlin.Noise(tx) * halfSize);
-                //Console.WriteLine(perlin.Noise(tx));
                 if (yValue <= -halfSize || yValue >= halfSize) continue;
                 map[(halfSize - yValue)*size + x] = 1; // Плоская карта
             }

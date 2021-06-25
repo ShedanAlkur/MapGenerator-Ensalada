@@ -276,7 +276,7 @@ namespace MapGenerator
 
                 case NoiseMapType.simple1d:
                     NoiseMap = MapGenerator.NoiseMap_simple1d(seed, mapSize,
-                    (double)num_scale.Value, (int)num_yd.Value, (int)num_octaves.Value,
+                    (double)num_scale.Value, (int)num_xd.Value, (int)num_octaves.Value,
                     (double)num_persistance.Value);
                     break;
                 case NoiseMapType.simple2d:

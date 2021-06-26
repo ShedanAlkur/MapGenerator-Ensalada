@@ -195,7 +195,7 @@ namespace MapGenerator
             this.num_timer.DecimalPlaces = 1;
             this.num_timer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.num_timer.Increment = new decimal(new int[] {
-            5,
+            1,
             0,
             0,
             65536});
@@ -1499,7 +1499,6 @@ namespace MapGenerator
             // 
             // timer1
             // 
-            this.timer1.Interval = 500;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // Form_contol

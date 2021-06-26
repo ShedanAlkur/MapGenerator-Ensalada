@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using MapGenerator;
 
 namespace MapGenerator
 {
@@ -248,6 +249,8 @@ namespace MapGenerator
                     }
                 case ShowedMapType.Water: // Карта облаков
                     {
+                        //Color water = Color.FromArgb(102, 153, 255);
+                        //Color dirt = Color.FromArgb(220, 200, 150);
                         int color;
                         for (var y = 0; y < mapSize; y++)
                             for (var x = 0; x < mapSize; x++)
@@ -300,7 +303,7 @@ namespace MapGenerator
                     break;
                 case NoiseMapType.simple3d:
                     NoiseMap = MapGenerator.NoiseMap_simple3d(seed, mapSize,
-                    (double)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (float)num_zd.Value,(int)num_octaves.Value, (double)num_persistance.Value);
+                    (double)num_scale.Value, (int)num_xd.Value, (int)num_yd.Value, (float)num_z.Value,(int)num_octaves.Value, (double)num_persistance.Value);
                     break;
                 case NoiseMapType.looped3d:
                     NoiseMap = MapGenerator.NoiseMap_looped3d(seed, mapSize,
@@ -421,15 +424,21 @@ namespace MapGenerator
             {
                 case NoiseMapType.simple1d:
                     num_yd.Enabled = false;
-                    num_zd.Enabled = false;
+                    num_increment_yd.Enabled = false;
+                    num_z.Enabled = false;
+                    num_increment_z.Enabled = false;
                     break;
                 case NoiseMapType.simple3d:
                     num_yd.Enabled = true;
-                    num_zd.Enabled = true;
+                    num_increment_yd.Enabled = true;
+                    num_z.Enabled = true;
+                    num_increment_z.Enabled = true;
                     break;
                 default:
                     num_yd.Enabled = true;
-                    num_zd.Enabled = false;
+                    num_increment_yd.Enabled = true;
+                    num_z.Enabled = false;
+                    num_increment_z.Enabled = false;
                     break;
             }
 
@@ -442,6 +451,12 @@ namespace MapGenerator
                     num_dw31.Enabled = false;
                     num_dw32.Enabled = false;
                     num_dw33.Enabled = false;
+
+                    num_increment_dw13.Enabled = false;
+                    num_increment_dw23.Enabled = false;
+                    num_increment_dw31.Enabled = false;
+                    num_increment_dw32.Enabled = false;
+                    num_increment_dw33.Enabled = false;
                     break;
                 case NoiseMapType.domainWarped3d:
                     gb_domainWarping.Enabled = true;
@@ -450,6 +465,12 @@ namespace MapGenerator
                     num_dw31.Enabled = true;
                     num_dw32.Enabled = true;
                     num_dw33.Enabled = true;
+
+                    num_increment_dw13.Enabled = true;
+                    num_increment_dw23.Enabled = true;
+                    num_increment_dw31.Enabled = true;
+                    num_increment_dw32.Enabled = true;
+                    num_increment_dw33.Enabled = true;
                     break;
                 default:
                     gb_domainWarping.Enabled = false;
@@ -491,7 +512,7 @@ namespace MapGenerator
         {
             UpdateComponentActivity(DictNoiseMapType[cb_noise.Text]);
             NoiseMapIsReady = false;
-            if (cb_sync.Checked)
+            if (cb_sync.Checked && !cb_timer.Checked)
             {
                 PrepareToVisualization();
                 Visualize();
@@ -499,7 +520,7 @@ namespace MapGenerator
         }
         private void comboBox_map_SelectedIndexChanged(object sender, EventArgs e) // Изменение типа отображаемой карты.
         {
-            if (cb_sync.Checked)
+            if (cb_sync.Checked && !cb_timer.Checked)
             {
                 PrepareToVisualization();
                 Visualize();
@@ -509,7 +530,7 @@ namespace MapGenerator
         {
             seed = (int)num_seed.Value;
             NoiseMapIsReady = false;
-            if (cb_sync.Checked)
+            if (cb_sync.Checked && !cb_timer.Checked)
             {
                 PrepareToVisualization();
                 Visualize();
@@ -518,7 +539,7 @@ namespace MapGenerator
         private void changedSetting_HeightMap(object sender, EventArgs e)
         {
             HeightMapIsReady = false;
-            if (cb_sync.Checked)
+            if (cb_sync.Checked && !cb_timer.Checked)
             {
                 PrepareToVisualization();
                 Visualize();
@@ -527,11 +548,39 @@ namespace MapGenerator
         private void changedSetting_TemperatureMap(object sender, EventArgs e)
         {
             BaseTemperatureMapIsReady = false;
-            if (cb_sync.Checked)
+            if (cb_sync.Checked && !cb_timer.Checked)
             {
                 PrepareToVisualization();
                 Visualize();
             }
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            num_xd.Value = (num_xd.Value + num_increment_xd.Value) % num_xd.Maximum;
+            num_yd.Value = (num_yd.Value + num_increment_yd.Value) % num_yd.Maximum;
+            num_z.Value = (num_z.Value + num_increment_z.Value) % num_z.Maximum;
+
+            num_dw11.Value = (num_dw11.Value + num_increment_dw11.Value) % num_dw11.Maximum;
+            num_dw12.Value = (num_dw12.Value + num_increment_dw12.Value) % num_dw12.Maximum;
+            num_dw13.Value = (num_dw13.Value + num_increment_dw13.Value) % num_dw13.Maximum;
+            num_dw21.Value = (num_dw21.Value + num_increment_dw21.Value) % num_dw21.Maximum;
+            num_dw22.Value = (num_dw22.Value + num_increment_dw22.Value) % num_dw22.Maximum;
+            num_dw23.Value = (num_dw23.Value + num_increment_dw23.Value) % num_dw23.Maximum;
+            num_dw31.Value = (num_dw31.Value + num_increment_dw31.Value) % num_dw31.Maximum;
+            num_dw32.Value = (num_dw32.Value + num_increment_dw32.Value) % num_dw32.Maximum;
+            num_dw33.Value = (num_dw33.Value + num_increment_dw33.Value) % num_dw33.Maximum;
+
+            PrepareToVisualization();
+            Visualize();
+        }
+        private void num_timer_ValueChanged(object sender, EventArgs e)
+        {
+            timer1.Interval = (int)(num_timer.Value * 1000);
+        }
+        private void cb_timer_CheckedChanged(object sender, EventArgs e)
+        {
+            timer1.Enabled = cb_timer.Checked;
         }
 
         #endregion
@@ -634,5 +683,6 @@ namespace MapGenerator
         };
 
         #endregion
+
     }
 }
